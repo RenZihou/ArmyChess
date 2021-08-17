@@ -1,0 +1,33 @@
+<RCC>
+    <qresource prefix="/background">
+        <file>board.png</file>
+    </qresource>
+    <qresource prefix="/chess">
+        <file alias="-1_1">Bomb_B.png</file>
+        <file alias="-1_0">Bomb_R.png</file>
+        <file alias="6_1">Brigadier_B.png</file>
+        <file alias="6_0">Brigadier_R.png</file>
+        <file alias="3_1">Captain_B.png</file>
+        <file alias="3_0">Captain_R.png</file>
+        <file alias="5_1">Colonel_B.png</file>
+        <file alias="5_0">Colonel_R.png</file>
+        <file alias="0_1">Ensign_B.png</file>
+        <file alias="0_0">Ensign_R.png</file>
+        <file alias="8_1">General_B.png</file>
+        <file alias="8_0">General_R.png</file>
+        <file alias="-2_1">Landmine_B.png</file>
+        <file alias="-2_0">Landmine_R.png</file>
+        <file alias="2_1">Lieutenant_B.png</file>
+        <file alias="2_0">Lieutenant_R.png</file>
+        <file alias="7_1">MajGeneral_B.png</file>
+        <file alias="7_0">MajGeneral_R.png</file>
+        <file alias="4_1">Major_B.png</file>
+        <file alias="4_0">Major_R.png</file>
+        <file alias="9_1">Marshal_B.png</file>
+        <file alias="9_0">Marshal_R.png</file>
+        <file alias="1_1">Sapper_B.png</file>
+        <file alias="1_0">Sapper_R.png</file>
+        <file>unknown.png</file>
+        <file>empty.png</file>
+    </qresource>
+</RCC>
