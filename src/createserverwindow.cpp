@@ -10,6 +10,7 @@ createServerWindow::createServerWindow(QWidget *parent, const QString& ip) :
         QDialog(parent), ui(new Ui::createServerWindow) {
     ui->setupUi(this);
     ui->ipLabel->setText("Listening at " + ip);
+    this->setWindowTitle("Create Server");
     QObject::connect(ui->confirmButton, &QPushButton::clicked, this, &QDialog::accept);
     QObject::connect(ui->cancelButton, &QPushButton::clicked, this, &QDialog::reject);
 }

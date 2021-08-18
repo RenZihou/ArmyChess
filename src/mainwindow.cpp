@@ -7,6 +7,7 @@
 #include "mainwindow.h"
 #include "ui_MainWindow.h"
 #include "createserverwindow.h"
+#include "connectserverwindow.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -16,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(static_cast<int>(1000 / scaleRatio), static_cast<int>(950 / scaleRatio));
     this->setFocusPolicy(Qt::NoFocus);
     QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
+    QObject::connect(ui->actionConnect_to_Server, &QAction::triggered, this, &MainWindow::connectServer);
 
 #ifdef CHEAT
     ui->cheatBar->setGeometry(static_cast<int>(640 / scaleRatio), static_cast<int>(850 / scaleRatio),
@@ -29,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
     delete ui;
+    delete server;
+    delete client;
+    delete socket;
 }
 
 void MainWindow::createServer() {
@@ -54,6 +59,18 @@ void MainWindow::createServer() {
 
     auto win = new createServerWindow(this, ip);
     win->show();
+}
+
+void MainWindow::connectServer() {
+    auto win = new connectServerWindow(this);
+    QObject::connect(win, &connectServerWindow::tryConnect, this, &MainWindow::tryConnect);
+    win->show();
+}
+
+bool MainWindow::tryConnect(const QString &ip) {
+    client = new QTcpSocket(this);
+    client->connectToHost(ip, 4738);
+    return true;
 }
 
 void MainWindow::connectionEstablished() {

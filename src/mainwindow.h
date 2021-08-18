@@ -26,9 +26,14 @@ public:
 private:
     Ui::MainWindow *ui;
     QTcpServer *server = nullptr;
+    QTcpSocket *client = nullptr;
     QTcpSocket *socket = nullptr;
 
     void createServer();
+
+    void connectServer();
+
+    bool tryConnect(const QString &ip);
 
     void connectionEstablished();
 
@@ -37,6 +42,7 @@ private:
     QLineEdit *cheatCmd;
 
     void cheat();
+
 #endif
 };
 
