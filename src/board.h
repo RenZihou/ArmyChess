@@ -34,6 +34,7 @@ private:
     QGridLayout *upper;
     QGridLayout *lower;
     std::vector<ChessLabel *> chess;
+    ChessLabel *selected = nullptr;
 
     ChessLabel *getChess(int x, int y);
 

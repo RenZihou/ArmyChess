@@ -51,6 +51,11 @@ void ChessLabel::updateImage() {
 void ChessLabel::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         if (type == EMPTY) return;
-        if (!revealed) this->reveal();
+        if (!revealed) {
+            this->reveal();
+            return;
+        } else {
+            emit chessSelected(x_ind, y_ind);
+        }
     }
 }

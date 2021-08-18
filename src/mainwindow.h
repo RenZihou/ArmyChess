@@ -8,6 +8,8 @@
 #include <QMainWindow>
 #include <QGridLayout>
 #include <QLineEdit>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,6 +25,13 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QTcpServer *server = nullptr;
+    QTcpSocket *socket = nullptr;
+
+    void createServer();
+
+    void connectionEstablished();
+
 #ifdef CHEAT
     QGridLayout *cheatLayout;
     QLineEdit *cheatCmd;

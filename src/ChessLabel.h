@@ -65,7 +65,7 @@ private:
 
 signals:
 
-    void chessFlipped();
+    void chessSelected(int x, int y);
 };
 
 

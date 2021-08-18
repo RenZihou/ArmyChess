@@ -14,17 +14,19 @@ find_package(Qt6 COMPONENTS
         Core
         Gui
         Widgets
+        Network
         REQUIRED)
 
 add_executable(ArmyChess
         src/main.cpp
         src/mainwindow.cpp src/mainwindow.h src/mainwindow.ui
         src/board.cpp src/board.h src/board.ui
-        resources/resources.qrc src/ChessLabel.cpp src/ChessLabel.h)
+        resources/resources.qrc src/ChessLabel.cpp src/ChessLabel.h src/createserverwindow.cpp src/createserverwindow.h src/createserverwindow.ui)
 target_link_libraries(ArmyChess
         Qt::Core
         Qt::Gui
-        Qt::Widgets)
+        Qt::Widgets
+        Qt::Network)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 

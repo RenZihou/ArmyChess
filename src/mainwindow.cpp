@@ -2,9 +2,11 @@
 // -*- encoding: utf-8 -*-
 // @Author: RZH
 
+#include <QHostInfo>
 
 #include "mainwindow.h"
 #include "ui_MainWindow.h"
+#include "createserverwindow.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -13,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("Army Chess");
     this->setFixedSize(static_cast<int>(1000 / scaleRatio), static_cast<int>(950 / scaleRatio));
     this->setFocusPolicy(Qt::NoFocus);
+    QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
 
 #ifdef CHEAT
     ui->cheatBar->setGeometry(static_cast<int>(640 / scaleRatio), static_cast<int>(850 / scaleRatio),
@@ -28,11 +31,43 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
+void MainWindow::createServer() {
+    // TODO: server already created?
+    // create server
+    server = new QTcpServer(this);
+    QObject::connect(server, &QTcpServer::newConnection, this, &MainWindow::connectionEstablished);
+
+    // get local ip
+    QString hostname = QHostInfo::localHostName();
+    QHostInfo host_info = QHostInfo::fromName(hostname);
+    QString ip;
+    QHostAddress host;
+    QList<QHostAddress> add_list = host_info.addresses();
+    for (const auto& a : add_list) {
+        if (a.protocol() == QAbstractSocket::IPv4Protocol) {
+            ip = a.toString();
+            host = a;
+            break;
+        }
+    }
+    server->listen(host, 4738);  // TODO: set port
+
+    auto win = new createServerWindow(this, ip);
+    win->show();
+}
+
+void MainWindow::connectionEstablished() {
+    socket = server->nextPendingConnection();
+    qDebug() << "connection established";
+}
+
 #ifdef CHEAT
+
 void MainWindow::cheat() {
     QString cmd = cheatCmd->text();
     cheatCmd->clear();
     ui->board->exec(cmd);
 }
+
 #endif // CHEAT
 

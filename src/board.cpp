@@ -78,7 +78,6 @@ Board::Board(QWidget *parent) :
             y++;
         }
 
-        QObject::connect(c, &ChessLabel::chessFlipped, this, &Board::drawBoard);
     }
 
     drawBoard();
