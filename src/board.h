@@ -21,11 +21,11 @@ class Board : public QWidget {
 Q_OBJECT
 
 public:
-    explicit Board(QWidget *parent = nullptr);
+    explicit Board(QWidget *parent = nullptr, long long seed = 0);
 
     ~Board() override;
 
-    void exec(const QString& cmd_);
+    void exec(const QString& cmd_, bool send = true);
 
 private:
     int side = UNKNOWN;
@@ -39,6 +39,11 @@ private:
     ChessLabel *getChess(int x, int y);
 
     void drawBoard();
+
+    signals:
+    void stepProceeded(const QString &cmd_);
+
+    void genMap(const QString &cmd_);
 };
 
 

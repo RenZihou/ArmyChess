@@ -65,6 +65,8 @@ private:
 
 signals:
 
+    void operate(const QString &cmd);
+
     void chessSelected(int x, int y);
 };
 

@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow() {
     delete ui;
     delete server;
-    delete client;
+//    delete client;
     delete socket;
 }
 
@@ -55,10 +55,14 @@ void MainWindow::createServer() {
             break;
         }
     }
-    server->listen(host, 4738);  // TODO: set port
+//    server->listen(host, 4738);  // TODO: set port & disable localhost
+    server->listen(QHostAddress::LocalHost, 4738);
 
     auto win = new createServerWindow(this, ip);
     win->show();
+    QObject::connect(win, &connectServerWindow::rejected, this, &MainWindow::stopListen);
+
+    qDebug() << "server created";
 }
 
 void MainWindow::connectServer() {
@@ -68,23 +72,57 @@ void MainWindow::connectServer() {
 }
 
 bool MainWindow::tryConnect(const QString &ip) {
-    client = new QTcpSocket(this);
-    client->connectToHost(ip, 4738);
+    socket = new QTcpSocket(this);
+//    client->connectToHost(ip, 4738);  // TODO: disable localhost
+    socket->connectToHost(QHostAddress::LocalHost, 4738);
+    QObject::connect(socket, &QTcpSocket::connected, this, &MainWindow::connectionEstablished);
     return true;
 }
 
+void MainWindow::stopListen() {
+    server->close();
+    qDebug() << "listening stopped";
+}
+
 void MainWindow::connectionEstablished() {
-    socket = server->nextPendingConnection();
+    if (server != nullptr) {
+        socket = server->nextPendingConnection();
+        delete ui->board;
+        long long seed = std::time(nullptr);
+        ui->board = new Board(ui->centralwidget, seed);
+        ui->board->show();
+        QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
+        this->send(QString("seed %1").arg(seed));
+    }
+    QObject::connect(socket, &QTcpSocket::readyRead, this, &MainWindow::receive);
     qDebug() << "connection established";
 }
 
-#ifdef CHEAT
+void MainWindow::send(const QString& cmd) {
+    if (socket == nullptr) return;
+    socket->write(cmd.toUtf8());
+    qDebug() << "[sent]" << cmd;
+}
 
+void MainWindow::receive() {
+    QString cmd = socket->readLine();
+    qDebug() << "[received]" << cmd;
+    if (cmd.startsWith("seed")) {
+        long long seed = cmd.remove("seed ").toLongLong();
+        delete ui->board;
+        ui->board = new Board(ui->centralwidget, seed);
+        ui->board->show();
+        QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
+    } else {
+        ui->board->exec(cmd, false);
+    }
+}
+
+#ifdef CHEAT
 void MainWindow::cheat() {
     QString cmd = cheatCmd->text();
     cheatCmd->clear();
     ui->board->exec(cmd);
 }
-
 #endif // CHEAT
 

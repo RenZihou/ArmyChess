@@ -11,7 +11,7 @@
 #include "ui_Board.h"
 
 
-Board::Board(QWidget *parent) :
+Board::Board(QWidget *parent, long long seed) :
         QWidget(parent), ui(new Ui::Board) {
     int w = static_cast<int>(640 / scaleRatio);
     int h = static_cast<int>(920 / scaleRatio);
@@ -36,27 +36,36 @@ Board::Board(QWidget *parent) :
     ui->background->setPixmap(bg.scaled(w, h, Qt::KeepAspectRatio));
 
     for (int type = LANDMINE; type <= MARSHAL; ++type) {
+        int num;
         switch (type) {
             case LANDMINE:
             case SAPPER:
             case LIEUTENANT:
             case CAPTAIN:
-                chess.push_back(new ChessLabel(this, RED, type));
-                chess.push_back(new ChessLabel(this, BLUE, type));
+                num = 3;
+                break;
             case BOMB:
             case MAJOR:
             case COLONEL:
             case BRIGADIER:
             case MAJGENERAL:
-                chess.push_back(new ChessLabel(this, RED, type));
-                chess.push_back(new ChessLabel(this, BLUE, type));
+                num = 2;
+                break;
             case GENERAL:
             case MARSHAL:
             case ENSIGN:
-                chess.push_back(new ChessLabel(this, RED, type));
-                chess.push_back(new ChessLabel(this, BLUE, type));
+                num = 1;
+                break;
             default:
                 break;
+        }
+        while (num--) {
+            auto r = new ChessLabel(this, RED, type);
+            auto b = new ChessLabel(this, BLUE, type);
+            QObject::connect(r, &ChessLabel::operate, this, &Board::stepProceeded);
+            QObject::connect(b, &ChessLabel::operate, this, &Board::stepProceeded);
+            chess.push_back(r);
+            chess.push_back(b);
         }
     }
     // ==== NOTICE begin ====
@@ -66,7 +75,9 @@ Board::Board(QWidget *parent) :
     // however, qt6 requires mingw 8.1.0,
     // so I have to choose a not recommended way (use time as seed)
     // ==== NOTICE end ====
-    std::shuffle(chess.begin(), chess.end(), std::mt19937(std::time(nullptr)));
+//    std::shuffle(chess.begin(), chess.end(), std::mt19937(std::time(nullptr)));
+    if (!seed) seed = std::time(nullptr);
+    std::shuffle(chess.begin(), chess.end(), std::mt19937(seed));
 
     int x = 0, y = 0;
     for (auto &c : chess) {
@@ -77,7 +88,6 @@ Board::Board(QWidget *parent) :
             x = 0;
             y++;
         }
-
     }
 
     drawBoard();
@@ -111,7 +121,7 @@ void Board::drawBoard() {
     }
 }
 
-void Board::exec(const QString &cmd_) {
+void Board::exec(const QString &cmd_, bool send /* = true */) {
     std::string cmd = cmd_.toStdString();
     std::string part;
     std::vector<std::string> parts;
@@ -130,4 +140,6 @@ void Board::exec(const QString &cmd_) {
         ChessLabel *c = this->getChess(x, y);
         if (c != nullptr) c->kill();
     }
+
+    if (send) emit this->stepProceeded(cmd_);
 }

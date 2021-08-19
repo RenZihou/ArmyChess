@@ -53,6 +53,7 @@ void ChessLabel::mousePressEvent(QMouseEvent *event) {
         if (type == EMPTY) return;
         if (!revealed) {
             this->reveal();
+            emit operate(QString("reveal %1 %2").arg(x_ind).arg(y_ind));
             return;
         } else {
             emit chessSelected(x_ind, y_ind);

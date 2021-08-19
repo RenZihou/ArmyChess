@@ -26,7 +26,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QTcpServer *server = nullptr;
-    QTcpSocket *client = nullptr;
+//    QTcpSocket *client = nullptr;
     QTcpSocket *socket = nullptr;
 
     void createServer();
@@ -35,7 +35,13 @@ private:
 
     bool tryConnect(const QString &ip);
 
+    void stopListen();
+
     void connectionEstablished();
+
+    void send(const QString& cmd);
+
+    void receive();
 
 #ifdef CHEAT
     QGridLayout *cheatLayout;

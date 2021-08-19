@@ -8,11 +8,11 @@ This is my project (#1) for the summer semester (30240522-3) in Tsinghua Univers
 
 - [x] main window & menu bar - 2021/08/16
 - [x] board & chess - 2021/08/17
-- [ ] board synchronization
+- [x] board synchronization - 2021/08/19
 
 #### Connection
 
-- [ ] connection
+- [x] connection - 2021/08/19
 - [ ] disconnection
 
 #### Rules
