@@ -22,6 +22,12 @@
     <height>950</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Adobe Devanagari</family>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -51,8 +57,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>20</y>
+      <x>690</x>
+      <y>60</y>
       <width>241</width>
       <height>141</height>
      </rect>
@@ -71,6 +77,27 @@
      </rect>
     </property>
    </widget>
+   <widget class="QLabel" name="connectLabel">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>20</y>
+      <width>301</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Courier New</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>[disconnected]</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -78,7 +105,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuConnect">

@@ -7,6 +7,7 @@
 
 #include <QDialog>
 
+#include "mainwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class createServerWindow; }
@@ -16,12 +17,16 @@ class createServerWindow : public QDialog {
 Q_OBJECT
 
 public:
-    explicit createServerWindow(QWidget *parent = nullptr, const QString& ip = "");
+    explicit createServerWindow(QWidget *parent = nullptr, const QString& ip = "",
+                                int state = LISTENING);
 
     ~createServerWindow() override;
 
+    void setInfo(int status);
+
 private:
     Ui::createServerWindow *ui;
+    QString ip_;
 };
 
 

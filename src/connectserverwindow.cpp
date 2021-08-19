@@ -24,3 +24,7 @@ connectServerWindow::~connectServerWindow() {
 void connectServerWindow::connectClicked() {
     emit this->tryConnect(ui->IpInput->text());
 }
+
+void connectServerWindow::setInfo(int state) {
+    if (state == CONNECTED_CLIENT) this->accept();
+}

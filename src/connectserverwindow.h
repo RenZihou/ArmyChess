@@ -7,6 +7,7 @@
 
 #include <QDialog>
 
+#include "mainwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class connectServerWindow; }
@@ -19,6 +20,8 @@ public:
     explicit connectServerWindow(QWidget *parent = nullptr);
 
     ~connectServerWindow() override;
+
+    void setInfo(int state);
 
 private:
     Ui::connectServerWindow *ui;

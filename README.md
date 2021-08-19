@@ -13,7 +13,7 @@ This is my project (#1) for the summer semester (30240522-3) in Tsinghua Univers
 #### Connection
 
 - [x] connection - 2021/08/19
-- [ ] disconnection
+- [x] disconnection - 2021/08/19
 
 #### Rules
 

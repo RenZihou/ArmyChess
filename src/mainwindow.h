@@ -11,6 +11,11 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+#define DISCONNECTED 0
+#define LISTENING 1
+#define CONNECTED_SERVER 2
+#define CONNECTED_CLIENT 3
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -26,8 +31,8 @@ public:
 private:
     Ui::MainWindow *ui;
     QTcpServer *server = nullptr;
-//    QTcpSocket *client = nullptr;
     QTcpSocket *socket = nullptr;
+    int state = DISCONNECTED;
 
     void createServer();
 
@@ -35,13 +40,19 @@ private:
 
     bool tryConnect(const QString &ip);
 
-    void stopListen();
+    void stopServer();
+
+    void stopClient();
 
     void connectionEstablished();
 
-    void send(const QString& cmd);
+    void connectionInterrupted();
+
+    void send(const QString &cmd);
 
     void receive();
+
+    void setStatus(int new_state);
 
 #ifdef CHEAT
     QGridLayout *cheatLayout;
@@ -50,6 +61,10 @@ private:
     void cheat();
 
 #endif
+
+signals:
+
+    void statusChanged(int new_status);
 };
 
 
