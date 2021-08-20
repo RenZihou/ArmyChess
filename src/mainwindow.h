@@ -28,6 +28,8 @@ public:
 
     ~MainWindow() override;
 
+    void changeSide(int side);
+
 private:
     Ui::MainWindow *ui;
     QTcpServer *server = nullptr;

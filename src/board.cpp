@@ -62,8 +62,8 @@ Board::Board(QWidget *parent, long long seed) :
         while (num--) {
             auto r = new ChessLabel(this, RED, type);
             auto b = new ChessLabel(this, BLUE, type);
-            QObject::connect(r, &ChessLabel::operate, this, &Board::stepProceeded);
-            QObject::connect(b, &ChessLabel::operate, this, &Board::stepProceeded);
+            this->connectChess(r);
+            this->connectChess(b);
             chess.push_back(r);
             chess.push_back(b);
         }
@@ -79,18 +79,30 @@ Board::Board(QWidget *parent, long long seed) :
     if (!seed) seed = std::time(nullptr);
     std::shuffle(chess.begin(), chess.end(), std::mt19937(seed));
 
+    std::vector<ChessLabel *> empties;
     int x = 0, y = 0;
     for (auto &c : chess) {
-        if ((x == 1 || x == 3) && (y == 2 || y == 4 || y == 7 || y == 9)) ++x;
-        if (x == 2 && (y == 3 || y == 8)) ++x;
+        if ((x == 1 || x == 3) && (y == 2 || y == 4 || y == 7 || y == 9)) {
+            auto e = new ChessLabel(this, UNKNOWN, EMPTY, x++, y);
+            e->reveal();
+            this->connectChess(e);
+            empties.push_back(e);
+        }
+        if (x == 2 && (y == 3 || y == 8)) {
+            auto e = new ChessLabel(this, UNKNOWN, EMPTY, x++, y);
+            e->reveal();
+            this->connectChess(e);
+            empties.push_back(e);
+        }
         c->setInd(x++, y);
         if (x == 5) {
             x = 0;
             y++;
         }
     }
+    chess.insert(chess.end(), empties.begin(), empties.end());
 
-    drawBoard();
+    this->drawBoard("all");
 }
 
 Board::~Board() {
@@ -104,21 +116,76 @@ ChessLabel *Board::getChess(int x, int y) {
     return nullptr;
 }
 
-void Board::drawBoard() {
-    QLayoutItem *child;
-    while ((child = upper->takeAt(0)) != nullptr) {
-        delete child;
-    }
-    while ((child = lower->takeAt(0)) != nullptr) {
-        delete child;
-    }
-    for (auto &c : chess) {
-        if (c->onUpper()) {
-            upper->addWidget(dynamic_cast<QWidget *>(c), c->getYInd(), c->getXInd());
-        } else {
-            lower->addWidget(dynamic_cast<QWidget *>(c), c->getYInd() - 6, c->getXInd());
+void Board::drawBoard(const std::string &type_, ChessLabel *chess_) {
+    if (type_ == "all") {
+        QLayoutItem *child;
+        while ((child = upper->takeAt(0)) != nullptr) {
+            delete child;
         }
+        while ((child = lower->takeAt(0)) != nullptr) {
+            delete child;
+        }
+        for (auto &c : chess) {
+            if (c->onUpper())
+                upper->addWidget(c, c->getYInd(), c->getXInd());
+            else
+                lower->addWidget(c, c->getYInd() - 6, c->getXInd());
+        }
+    } else if (type_ == "single") {
+//        delete upper->takeAt(upper->indexOf(chess_));
+//        delete lower->takeAt(lower->indexOf(chess_));
+//        if (chess_->onUpper())
+//            upper->addWidget(chess_, chess_->getYInd(), chess_->getXInd());
+//        else
+//            lower->addWidget(chess_, chess_->getYInd() - 6, chess_->getXInd());
+        qDebug() << "deprecated single draw method called";
     }
+
+}
+
+void Board::chessClicked(int x, int y) {
+    auto c = this->getChess(x, y);
+    this->chessClicked(c);
+}
+
+void Board::chessClicked(ChessLabel *chess_) {
+    qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd();
+    if (selected == nullptr) {
+        if (side == chess_->getSide())
+            selected = chess_;
+        else return;
+    } else {
+        // movable
+        // road
+        if (Board::distance(chess_, selected, "hamilton") == 1)  // TODO: exclude mountain
+            if (chess_->getSide() == UNKNOWN) {// empty place
+                selected->moveToEmpty(chess_);
+                selected = nullptr;
+            }
+        // railway
+    }
+}
+
+void Board::chessRevealed(int side_) {
+    if (side != UNKNOWN) return;
+    if (side_ == prev_side) {
+        side = side_;
+        emit this->sideChanged(side);
+        emit this->stepProceeded(QString("side %1").arg(side));
+    } else prev_side = side_;
+}
+
+int Board::distance(ChessLabel *a, ChessLabel *b, const std::string &rule) {
+    if (rule == "hamilton") {
+        return std::abs(a->getXInd() - b->getXInd()) + std::abs(a->getYInd() - b->getYInd());
+    }
+    return -1;
+}
+
+void Board::connectChess(ChessLabel *c) {
+    QObject::connect(c, &ChessLabel::operate, this, &Board::stepProceeded);
+    QObject::connect(c, &ChessLabel::revealSide, this, &Board::chessRevealed);
+    QObject::connect(c, &ChessLabel::chessClicked, this, qOverload<ChessLabel *>(&Board::chessClicked));
 }
 
 void Board::exec(const QString &cmd_, bool send /* = true */) {
@@ -139,6 +206,17 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         int y = stoi(*(++it));
         ChessLabel *c = this->getChess(x, y);
         if (c != nullptr) c->kill();
+    } else if (*it == "move") {
+        int x0 = stoi(*(++it));
+        int y0 = stoi(*(++it));
+        int x1 = stoi(*(++it));
+        int y1 = stoi(*(++it));
+        this->chessClicked(x0, y0);
+        this->chessClicked(x1, y1);
+    } else if (*it == "side") {
+        int side_ = stoi(*(++it));
+        side = 1 - side_;
+        emit this->sideChanged(side);
     }
 
     if (send) emit this->stepProceeded(cmd_);

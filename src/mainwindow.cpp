@@ -20,8 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFocusPolicy(Qt::NoFocus);
     ui->connectLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(10 / scaleRatio),
                                   static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
+    ui->sideLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(70 / scaleRatio),
+                               static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
     QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
     QObject::connect(ui->actionConnect_to_Server, &QAction::triggered, this, &MainWindow::connectServer);
+    QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
 
 #ifdef CHEAT
     ui->cheatBar->setGeometry(static_cast<int>(640 / scaleRatio), static_cast<int>(840 / scaleRatio),
@@ -37,6 +40,11 @@ MainWindow::~MainWindow() {
     delete ui;
     delete server;
     delete socket;
+}
+
+void MainWindow::changeSide(int side) {
+    ui->sideLabel->setText(QString("Your Side: [%1]").arg(side == RED ? "red" : "blue"));
+    // TODO: support UNKNOWN
 }
 
 void MainWindow::createServer() {

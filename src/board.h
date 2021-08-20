@@ -25,10 +25,11 @@ public:
 
     ~Board() override;
 
-    void exec(const QString& cmd_, bool send = true);
+    void exec(const QString &cmd_, bool send = true);
 
 private:
     int side = UNKNOWN;
+    int prev_side = UNKNOWN;
     QTimer timer;
     Ui::Board *ui;
     QGridLayout *upper;
@@ -38,12 +39,27 @@ private:
 
     ChessLabel *getChess(int x, int y);
 
-    void drawBoard();
+    void drawBoard(const std::string& type_ = "all", ChessLabel *chess_ = nullptr);
 
-    signals:
+    void chessClicked(ChessLabel *chess_);
+
+    void chessClicked(int x, int y);
+
+    void chessRevealed(int side_);
+
+    static int distance(ChessLabel *a, ChessLabel *b, const std::string &rule);
+
+    bool movable(ChessLabel *current, ChessLabel *target);
+
+    void connectChess(ChessLabel *c);
+
+signals:
+
     void stepProceeded(const QString &cmd_);
 
     void genMap(const QString &cmd_);
+
+    void sideChanged(int side_);
 };
 
 

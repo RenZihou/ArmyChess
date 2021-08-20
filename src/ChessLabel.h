@@ -40,6 +40,8 @@ public:
 
     void reveal(bool reveal = true);
 
+    void moveToEmpty(ChessLabel *target);
+
     void kill();
 
     [[nodiscard]] bool onUpper() const;
@@ -49,6 +51,8 @@ public:
     [[nodiscard]] int getYInd() const;
 
     [[nodiscard]] bool isRevealed() const;
+
+    [[nodiscard]] int getSide() const;
 
 private:
     int side;
@@ -67,7 +71,9 @@ signals:
 
     void operate(const QString &cmd);
 
-    void chessSelected(int x, int y);
+    void chessClicked(ChessLabel *chess);
+
+    void revealSide(int side_);
 };
 
 

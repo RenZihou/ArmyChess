@@ -22,10 +22,22 @@ void ChessLabel::reveal(bool reveal /* = true */) {
     this->updateImage();
 }
 
+void ChessLabel::moveToEmpty(ChessLabel *target) {
+    if (target->type != EMPTY) return;
+    target->type = this->type;
+    target->side = this->side;
+    target->revealed = this->revealed;
+    target->updateImage();
+    this->type = EMPTY;
+    this->side = UNKNOWN;
+    this->revealed = true;
+    this->updateImage();
+}
+
 void ChessLabel::kill() {
     type = EMPTY;
-    x_ind = -1;
-    y_ind = -1;
+    side = UNKNOWN;
+    this->revealed = true;
     this->updateImage();
 }
 
@@ -43,6 +55,8 @@ int ChessLabel::getYInd() const { return y_ind; }
 
 bool ChessLabel::isRevealed() const { return revealed; }
 
+int ChessLabel::getSide() const { return side; }
+
 void ChessLabel::updateImage() {
     QPixmap image(this->qrcFilename());
     this->setPixmap(image.scaled(90 / scaleRatio, 45 / scaleRatio, Qt::KeepAspectRatio));
@@ -50,13 +64,13 @@ void ChessLabel::updateImage() {
 
 void ChessLabel::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        if (type == EMPTY) return;
         if (!revealed) {
             this->reveal();
+            emit revealSide(side);
             emit operate(QString("reveal %1 %2").arg(x_ind).arg(y_ind));
             return;
         } else {
-            emit chessSelected(x_ind, y_ind);
+            emit chessClicked(this);
         }
     }
 }
