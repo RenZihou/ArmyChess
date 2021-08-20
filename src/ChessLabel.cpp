@@ -41,6 +41,11 @@ void ChessLabel::kill() {
     this->updateImage();
 }
 
+void ChessLabel::highlight(bool h /* = true */) {
+    h ? this->setStyleSheet("border: 2px solid red;")
+      : this->setStyleSheet("");  // TODO: change color
+}
+
 QString ChessLabel::qrcFilename() const {
     if (type == EMPTY) return {":/chess/empty.png"};
     return revealed ? QString(":/chess/%1_%2").arg(type).arg(side)
@@ -64,6 +69,7 @@ bool ChessLabel::inBunker() const {
             return false;
     }
 }
+
 bool ChessLabel::isRevealed() const { return revealed; }
 
 int ChessLabel::getSide() const { return side; }

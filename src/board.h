@@ -53,6 +53,8 @@ private:
 
     void connectChess(ChessLabel *c) const;
 
+    void setSelected(ChessLabel *s = nullptr);
+
 signals:
 
     void stepProceeded(const QString &cmd_);

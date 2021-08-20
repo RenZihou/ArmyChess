@@ -152,27 +152,23 @@ void Board::chessClicked(ChessLabel *chess_) {
     qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd();
     if (!chess_->isRevealed()) {
         chess_->reveal();
-        selected = nullptr;
+        this->setSelected(nullptr);
         this->stepProceeded(
                 QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
         this->chessRevealed(chess_->getSide());
         return;
     }
     if (selected == nullptr) {
-        if (side == chess_->getSide())
-            selected = chess_;
+        if (side == chess_->getSide()) this->setSelected(chess_);
         else return;
     } else {
-        // movable
-        // road
-        if (movable(selected, chess_)) {  // TODO: exclude mountain
+        if (movable(selected, chess_)) {
             if (chess_->getSide() == UNKNOWN) {// empty place
                 selected->moveToEmpty(chess_);
-                selected = nullptr;
+                this->setSelected(nullptr);
             }
-            // railway
         } else {
-            selected = nullptr;
+            this->setSelected(nullptr);
         }
     }
 }
@@ -222,6 +218,12 @@ void Board::connectChess(ChessLabel *c) const {
 //    QObject::connect(c, &ChessLabel::operate, this, &Board::stepProceeded);
 //    QObject::connect(c, &ChessLabel::revealSide, this, &Board::chessRevealed);
     QObject::connect(c, &ChessLabel::chessClicked, this, qOverload<ChessLabel *>(&Board::chessClicked));
+}
+
+void Board::setSelected(ChessLabel *s) {
+    if (selected != nullptr) selected->highlight(false);
+    if (s != nullptr) s->highlight();
+    selected = s;
 }
 
 void Board::exec(const QString &cmd_, bool send /* = true */) {

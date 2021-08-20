@@ -44,7 +44,7 @@ public:
 
     void kill();
 
-    void highlight();
+    void highlight(bool h = true);
 
     [[nodiscard]] bool onUpper() const;
 
