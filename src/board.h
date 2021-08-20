@@ -38,9 +38,9 @@ private:
     std::vector<ChessLabel *> chess;
     ChessLabel *selected = nullptr;
 
-    ChessLabel *getChess(int x, int y);
+    [[nodiscard]] ChessLabel *getChess(int x, int y) const;
 
-    void drawBoard(const std::string& type_ = "all", ChessLabel *chess_ = nullptr);
+    void drawBoard();
 
     void chessClicked(ChessLabel *chess_);
 
@@ -50,12 +50,12 @@ private:
 
     static int distance(ChessLabel *a, ChessLabel *b, const std::string &rule);
 
-    static bool movable(ChessLabel *current, ChessLabel *target);
+    bool movable(ChessLabel *current, ChessLabel *target);
 
     // ret: {-2: ILLEGAL}, {-1: NO}, {0: TIE}, {1: KILLABLE}
     int killable(ChessLabel *current, ChessLabel *target);
 
-    void reachable(ChessLabel *current, ChessLabel *target) const;
+    bool reachable(ChessLabel *current, ChessLabel *target, bool can_turn) const;
 
     void connectChess(ChessLabel *c) const;
 

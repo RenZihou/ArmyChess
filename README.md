@@ -19,8 +19,8 @@ This is my project (#1) for the summer semester (30240522-3) in Tsinghua Univers
 
 - [x] init board and chess - 2021/08/17
 - [x] flip chess - 2021/08/17
-- [ ] move chess
-- [x] eat chess
+- [x] move chess - 2021/08/20
+- [x] eat chess - 2021/08/20
 
 #### Victory
 

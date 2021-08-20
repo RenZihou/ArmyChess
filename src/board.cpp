@@ -102,7 +102,7 @@ Board::Board(QWidget *parent, long long seed) :
     }
     chess.insert(chess.end(), empties.begin(), empties.end());
 
-    this->drawBoard("all");
+    this->drawBoard();
 }
 
 Board::~Board() {
@@ -112,38 +112,27 @@ Board::~Board() {
     delete selected;
 }
 
-ChessLabel *Board::getChess(int x, int y) {
-    for (auto c : chess) {
+ChessLabel *Board::getChess(int x, int y) const {
+    for (const auto &c : chess) {
         if (c->getXInd() == x && c->getYInd() == y) return c;
     }
     return nullptr;
 }
 
-void Board::drawBoard(const std::string &type_, ChessLabel *chess_) {
-    if (type_ == "all") {
-        QLayoutItem *child;
-        while ((child = upper->takeAt(0)) != nullptr) {
-            delete child;
-        }
-        while ((child = lower->takeAt(0)) != nullptr) {
-            delete child;
-        }
-        for (auto &c : chess) {
-            if (c->onUpper())
-                upper->addWidget(c, c->getYInd(), c->getXInd());
-            else
-                lower->addWidget(c, c->getYInd() - 6, c->getXInd());
-        }
-    } else if (type_ == "single") {
-//        delete upper->takeAt(upper->indexOf(chess_));
-//        delete lower->takeAt(lower->indexOf(chess_));
-//        if (chess_->onUpper())
-//            upper->addWidget(chess_, chess_->getYInd(), chess_->getXInd());
-//        else
-//            lower->addWidget(chess_, chess_->getYInd() - 6, chess_->getXInd());
-        qDebug() << "deprecated single draw method called";
+void Board::drawBoard() {
+    QLayoutItem *child;
+    while ((child = upper->takeAt(0)) != nullptr) {
+        delete child;
     }
-
+    while ((child = lower->takeAt(0)) != nullptr) {
+        delete child;
+    }
+    for (auto &c : chess) {
+        if (c->onUpper())
+            upper->addWidget(c, c->getYInd(), c->getXInd());
+        else
+            lower->addWidget(c, c->getYInd() - 6, c->getXInd());
+    }
 }
 
 void Board::chessClicked(int x, int y) {
@@ -170,19 +159,21 @@ void Board::chessClicked(ChessLabel *chess_) {
             if (Board::movable(selected, chess_)) selected->moveToEmpty(chess_);
             this->setSelected(nullptr);
         } else {  // move and try to kill opponent
-            switch (Board::killable(selected, chess_)) {
-                case -2:  // illegal movement
+            if (Board::movable(selected, chess_)) {
+                switch (Board::killable(selected, chess_)) {
+                    case -2:  // illegal movement
                     break;
-                case -1:  // killed by opponent
+                    case -1:  // killed by opponent
                     selected->kill();
                     break;
-                case 0:  // die together
+                    case 0:  // die together
                     chess_->kill();
                     selected->kill();
                     break;
-                case 1:  // kill opponent
+                    case 1:  // kill opponent
                     chess_->kill();
                     selected->moveToEmpty(chess_);
+                }
             }
             this->setSelected(nullptr);
         }
@@ -226,8 +217,7 @@ bool Board::movable(ChessLabel *current, ChessLabel *target) {
         return true;
     } else if (current->inBunker() || target->inBunker()) { // move out of / into bunker
         return Board::distance(current, target, "chebyshev") == 1;
-    }  // TODO: move along highway
-    return false;
+    } else return Board::reachable(current, target, t == SAPPER); // move along highway
 }
 
 int Board::killable(ChessLabel *current, ChessLabel *target) {
@@ -241,12 +231,80 @@ int Board::killable(ChessLabel *current, ChessLabel *target) {
             if (current->getType() == SAPPER) {
                 --landmine_left;
                 return 1;
-            } else return -2;
+            } else if (current->getType() == BOMB) {
+                --landmine_left;
+                return 0;
+            } return -2;
         default:
             if (current->getType() == BOMB) return 0;
             if (current->getType() == target->getType()) return 0;
             if (current->getType() > target->getType()) return 1;
             return -1;
+    }
+}
+
+bool Board::reachable(ChessLabel *current, ChessLabel *target, bool can_turn) const {
+    if (!(current->onHighway() && target->onHighway())) return false;
+    if (can_turn) {
+        std::vector<ChessLabel *> highway = {current};
+        int prev_size = 0;
+        while (highway.size() != prev_size) {
+            int inc_size = 0;
+            for (int h = static_cast<int>(highway.size()) - 1; h >= prev_size; --h) {
+                for (int direction = 0; direction < 4; ++direction) {
+                    auto c = this->getChess(highway[h]->getXInd() + !(direction & 1) * (1 - direction),
+                                            highway[h]->getYInd() + (direction & 1) * (direction - 2));
+                    if (c == nullptr) continue;
+                    qDebug() << "check" << c->getXInd() << c->getYInd();
+                    if (c->onHighway() &&
+                        std::find(highway.begin(), highway.end(), c) == highway.end()) {
+                        qDebug() << "add" << c->getXInd() << c->getYInd();
+                        if (c == target) return true;
+                        if (c->getType() == EMPTY) {
+                            highway.push_back(c);
+                            ++inc_size;
+                        }
+                    }
+                }
+            }
+            prev_size = static_cast<int>(highway.size()) - inc_size;
+        }
+        return false;
+    } else {  // can only move straightly
+        if (current->getXInd() == target->getXInd()) {  // vertically
+            int smaller, greater;
+            switch (current->getXInd()) {
+                case 0:
+                case 4:
+                    smaller = std::min(current->getYInd(), target->getYInd());
+                    greater = std::max(current->getYInd(), target->getYInd());
+                    for (int y = smaller + 1; y < greater; ++y) {
+                        if (this->getChess(current->getXInd(), y)->getType() != EMPTY)
+                            return false;
+                    }
+                    return true;
+//                case 2:  // this case can be substituted by moving along road
+                default:
+                    return false;
+            }
+        } else if (current->getYInd() == target->getYInd()) {  // horizontally
+            int smaller, greater;
+            switch (current->getYInd()) {
+                case 1:
+                case 5:
+                case 6:
+                case 10:
+                    smaller = std::min(current->getXInd(), target->getXInd());
+                    greater = std::max(current->getXInd(), target->getXInd());
+                    for (int x = smaller + 1; x < greater; ++x) {
+                        if (this->getChess(x, current->getYInd())->getType() != EMPTY)
+                            return false;
+                    }
+                    return true;
+                default:
+                    return false;
+            }
+        } else return false;
     }
 }
 

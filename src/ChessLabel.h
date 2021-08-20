@@ -54,6 +54,8 @@ public:
 
     [[nodiscard]] bool inBunker() const;
 
+    [[nodiscard]] bool onHighway() const;
+
     [[nodiscard]] bool isRevealed() const;
 
     [[nodiscard]] int getSide() const;

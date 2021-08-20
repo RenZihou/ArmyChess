@@ -70,6 +70,16 @@ bool ChessLabel::inBunker() const {
     }
 }
 
+bool ChessLabel::onHighway() const {
+    switch (x_ind) {
+        case 0:
+        case 4:
+            return y_ind != 0 && y_ind != 11;
+        default:
+            return y_ind == 1 || y_ind == 5 || y_ind == 6 || y_ind == 10;
+    }
+}
+
 bool ChessLabel::isRevealed() const { return revealed; }
 
 int ChessLabel::getSide() const { return side; }
