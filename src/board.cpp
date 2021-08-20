@@ -106,7 +106,10 @@ Board::Board(QWidget *parent, long long seed) :
 }
 
 Board::~Board() {
+    delete upper;
+    delete lower;
     delete ui;
+    delete selected;
 }
 
 ChessLabel *Board::getChess(int x, int y) {
@@ -162,12 +165,25 @@ void Board::chessClicked(ChessLabel *chess_) {
         if (side == chess_->getSide()) this->setSelected(chess_);
         else return;
     } else {
-        if (movable(selected, chess_)) {
-            if (chess_->getSide() == UNKNOWN) {// empty place
-                selected->moveToEmpty(chess_);
-                this->setSelected(nullptr);
+        if (chess_->getSide() == side) this->setSelected(chess_);  // select another
+        else if (chess_->getSide() == UNKNOWN) {  // move
+            if (Board::movable(selected, chess_)) selected->moveToEmpty(chess_);
+            this->setSelected(nullptr);
+        } else {  // move and try to kill opponent
+            switch (Board::killable(selected, chess_)) {
+                case -2:  // illegal movement
+                    break;
+                case -1:  // killed by opponent
+                    selected->kill();
+                    break;
+                case 0:  // die together
+                    chess_->kill();
+                    selected->kill();
+                    break;
+                case 1:  // kill opponent
+                    chess_->kill();
+                    selected->moveToEmpty(chess_);
             }
-        } else {
             this->setSelected(nullptr);
         }
     }
@@ -194,7 +210,7 @@ int Board::distance(ChessLabel *a, ChessLabel *b, const std::string &rule) {
 bool Board::movable(ChessLabel *current, ChessLabel *target) {
     int t = current->getType();
     if (t == ENSIGN || t == LANDMINE) return false;
-    if (Board::distance(current, target, "hamilton") == 1) {  // move on path
+    if (Board::distance(current, target, "hamilton") == 1) {  // move along path
         if (current->getXInd() == 1 && current->getYInd() == 5
             && target->getXInd() == 1 && target->getYInd() == 6)
             return false;
@@ -210,8 +226,27 @@ bool Board::movable(ChessLabel *current, ChessLabel *target) {
         return true;
     } else if (current->inBunker() || target->inBunker()) { // move out of / into bunker
         return Board::distance(current, target, "chebyshev") == 1;
-    }
+    }  // TODO: move along highway
     return false;
+}
+
+int Board::killable(ChessLabel *current, ChessLabel *target) {
+    switch (target->getType()) {
+        case ENSIGN:  // TODO: win
+            return (current->getType() == SAPPER && !landmine_left) ? 1 : -2;
+        case BOMB:
+            return 0;
+        case LANDMINE:
+            if (current->getType() == SAPPER) {
+                --landmine_left;
+                return 1;
+            } else return -2;
+        default:
+            if (current->getType() == BOMB) return 0;
+            if (current->getType() == target->getType()) return 0;
+            if (current->getType() > target->getType()) return 1;
+            return -1;
+    }
 }
 
 void Board::connectChess(ChessLabel *c) const {

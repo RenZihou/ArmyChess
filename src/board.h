@@ -30,6 +30,7 @@ public:
 private:
     int side = UNKNOWN;
     int prev_side = UNKNOWN;
+    int landmine_left = 3;
     QTimer timer;
     Ui::Board *ui;
     QGridLayout *upper;
@@ -50,6 +51,11 @@ private:
     static int distance(ChessLabel *a, ChessLabel *b, const std::string &rule);
 
     static bool movable(ChessLabel *current, ChessLabel *target);
+
+    // ret: {-2: ILLEGAL}, {-1: NO}, {0: TIE}, {1: KILLABLE}
+    int killable(ChessLabel *current, ChessLabel *target);
+
+    void reachable(ChessLabel *current, ChessLabel *target) const;
 
     void connectChess(ChessLabel *c) const;
 
