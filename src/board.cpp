@@ -150,6 +150,14 @@ void Board::chessClicked(int x, int y) {
 
 void Board::chessClicked(ChessLabel *chess_) {
     qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd();
+    if (!chess_->isRevealed()) {
+        chess_->reveal();
+        selected = nullptr;
+        this->stepProceeded(
+                QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
+        this->chessRevealed(chess_->getSide());
+        return;
+    }
     if (selected == nullptr) {
         if (side == chess_->getSide())
             selected = chess_;
@@ -157,12 +165,15 @@ void Board::chessClicked(ChessLabel *chess_) {
     } else {
         // movable
         // road
-        if (Board::distance(chess_, selected, "hamilton") == 1)  // TODO: exclude mountain
+        if (movable(selected, chess_)) {  // TODO: exclude mountain
             if (chess_->getSide() == UNKNOWN) {// empty place
                 selected->moveToEmpty(chess_);
                 selected = nullptr;
             }
-        // railway
+            // railway
+        } else {
+            selected = nullptr;
+        }
     }
 }
 
@@ -178,13 +189,38 @@ void Board::chessRevealed(int side_) {
 int Board::distance(ChessLabel *a, ChessLabel *b, const std::string &rule) {
     if (rule == "hamilton") {
         return std::abs(a->getXInd() - b->getXInd()) + std::abs(a->getYInd() - b->getYInd());
+    } else if (rule == "chebyshev") {
+        return std::max(std::abs(a->getXInd() - b->getXInd()), std::abs(a->getYInd() - b->getYInd()));
     }
     return -1;
 }
 
-void Board::connectChess(ChessLabel *c) {
-    QObject::connect(c, &ChessLabel::operate, this, &Board::stepProceeded);
-    QObject::connect(c, &ChessLabel::revealSide, this, &Board::chessRevealed);
+bool Board::movable(ChessLabel *current, ChessLabel *target) {
+    int t = current->getType();
+    if (t == ENSIGN || t == LANDMINE) return false;
+    if (Board::distance(current, target, "hamilton") == 1) {  // move on path
+        if (current->getXInd() == 1 && current->getYInd() == 5
+            && target->getXInd() == 1 && target->getYInd() == 6)
+            return false;
+        if (current->getXInd() == 1 && current->getYInd() == 6
+            && target->getXInd() == 1 && target->getYInd() == 5)
+            return false;
+        if (current->getXInd() == 3 && current->getYInd() == 5
+            && target->getXInd() == 3 && target->getYInd() == 6)
+            return false;
+        if (current->getXInd() == 3 && current->getYInd() == 6
+            && target->getXInd() == 3 && target->getYInd() == 5)
+            return false;
+        return true;
+    } else if (current->inBunker() || target->inBunker()) { // move out of / into bunker
+        return Board::distance(current, target, "chebyshev") == 1;
+    }
+    return false;
+}
+
+void Board::connectChess(ChessLabel *c) const {
+//    QObject::connect(c, &ChessLabel::operate, this, &Board::stepProceeded);
+//    QObject::connect(c, &ChessLabel::revealSide, this, &Board::chessRevealed);
     QObject::connect(c, &ChessLabel::chessClicked, this, qOverload<ChessLabel *>(&Board::chessClicked));
 }
 

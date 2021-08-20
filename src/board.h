@@ -49,9 +49,9 @@ private:
 
     static int distance(ChessLabel *a, ChessLabel *b, const std::string &rule);
 
-    bool movable(ChessLabel *current, ChessLabel *target);
+    static bool movable(ChessLabel *current, ChessLabel *target);
 
-    void connectChess(ChessLabel *c);
+    void connectChess(ChessLabel *c) const;
 
 signals:
 

@@ -53,9 +53,22 @@ int ChessLabel::getXInd() const { return x_ind; }
 
 int ChessLabel::getYInd() const { return y_ind; }
 
+bool ChessLabel::inBunker() const {
+    switch (x_ind) {
+        case 1:
+        case 3:
+            return y_ind == 2 || y_ind == 4 || y_ind == 7 || y_ind == 9;
+        case 2:
+            return y_ind == 3 || y_ind == 8;
+        default:
+            return false;
+    }
+}
 bool ChessLabel::isRevealed() const { return revealed; }
 
 int ChessLabel::getSide() const { return side; }
+
+int ChessLabel::getType() const { return type; }
 
 void ChessLabel::updateImage() {
     QPixmap image(this->qrcFilename());
@@ -64,13 +77,14 @@ void ChessLabel::updateImage() {
 
 void ChessLabel::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        if (!revealed) {
-            this->reveal();
-            emit revealSide(side);
-            emit operate(QString("reveal %1 %2").arg(x_ind).arg(y_ind));
-            return;
-        } else {
-            emit chessClicked(this);
-        }
+        emit chessClicked(this);
+//        if (!revealed) {
+//            this->reveal();
+//            emit revealSide(side);
+//            emit operate(QString("reveal %1 %2").arg(x_ind).arg(y_ind));
+//            return;
+//        } else {
+//            emit chessClicked(this);
+//        }
     }
 }

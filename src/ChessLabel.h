@@ -44,15 +44,21 @@ public:
 
     void kill();
 
+    void highlight();
+
     [[nodiscard]] bool onUpper() const;
 
     [[nodiscard]] int getXInd() const;
 
     [[nodiscard]] int getYInd() const;
 
+    [[nodiscard]] bool inBunker() const;
+
     [[nodiscard]] bool isRevealed() const;
 
     [[nodiscard]] int getSide() const;
+
+    [[nodiscard]] int getType() const;
 
 private:
     int side;
