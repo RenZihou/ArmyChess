@@ -12,7 +12,7 @@
 
 
 Board::Board(QWidget *parent, long long seed) :
-        QWidget(parent), ui(new Ui::Board), timer(new QTimer(this)){
+        QWidget(parent), ui(new Ui::Board), timer(new QTimer(this)) {
     int w = static_cast<int>(640 / scaleRatio);
     int h = static_cast<int>(920 / scaleRatio);
     ui->setupUi(this);
@@ -114,6 +114,8 @@ Board::~Board() {
     delete selected;
 }
 
+int Board::getSide() const { return side; }
+
 void Board::flipTurn() { this->turn = !turn; }
 
 ChessLabel *Board::getChess(int x, int y) const {
@@ -140,7 +142,8 @@ void Board::drawBoard() {
 }
 
 void Board::chessClicked(ChessLabel *chess_) {
-    qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd();
+    qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd()
+             << chess_->getType() << chess_->getSide();
     if (!turn) return;  // not player's turn
     if (!chess_->isRevealed()) {
         chess_->reveal();
@@ -202,6 +205,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
                         this->exec("finish");
+                        break;
                     case 2:  // kill and win
                         chess_->kill();
                         emit this->stepProceeded(QString("kill %1 %2")
@@ -215,6 +219,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
                         emit this->stepProceeded("win");
+                        qDebug() << "win by killing ensign";
                 }
             }
             this->setSelected(nullptr);
@@ -353,6 +358,7 @@ bool Board::reachable(ChessLabel *current, ChessLabel *target, bool can_turn) co
 
 void Board::connectChess(ChessLabel *c) const {
     QObject::connect(c, &ChessLabel::chessClicked, this, qOverload<ChessLabel *>(&Board::chessClicked));
+    QObject::connect(c, &ChessLabel::soldierKilled, this, &Board::soldierKilled);
 }
 
 void Board::setSelected(ChessLabel *s) {
@@ -382,6 +388,14 @@ void Board::resetTimer() {
     timer->start(1000);
     time = 20;
     emit this->timeChanged(time);
+}
+
+void Board::soldierKilled() {
+    --soldier_left;
+    if (soldier_left == 0) {
+        this->exec("lose");
+        qDebug() << "lose because all soldiers are killed";
+    }
 }
 
 void Board::exec(const QString &cmd_, bool send /* = true */) {

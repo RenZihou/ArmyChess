@@ -2,7 +2,7 @@
 // -*- encoding: utf-8 -*-
 // @Author: RZH
 
-#include "ChessLabel.h"
+#include "board.h"
 
 ChessLabel::ChessLabel(QWidget *parent, int side, int type, int x_ind, int y_ind) :
         QLabel(parent), side(side), type(type), x_ind(x_ind), y_ind(y_ind) {
@@ -35,6 +35,8 @@ void ChessLabel::moveToEmpty(ChessLabel *target) {
 }
 
 void ChessLabel::kill() {
+    if (this->side == qobject_cast<Board *>(this->parent()->parent())->getSide() &&
+        this->type != ENSIGN && this->type != LANDMINE) emit this->soldierKilled();
     type = EMPTY;
     side = UNKNOWN;
     this->revealed = true;

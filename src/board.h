@@ -25,6 +25,8 @@ public:
 
     ~Board() override;
 
+    [[nodiscard]] int getSide() const;
+
     void flipTurn();
 
     void resetTimer();
@@ -35,6 +37,7 @@ private:
     int side = UNKNOWN;
     int prev_side = UNKNOWN;
     int landmine_left = 3;
+    int soldier_left = 21;
     int timeout = 0;
     int time = 20;
     int total_turn = 0;
@@ -68,6 +71,8 @@ private:
     void setSelected(ChessLabel *s = nullptr);
 
     void countDown();
+
+    void soldierKilled();
 
 signals:
 

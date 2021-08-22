@@ -77,12 +77,9 @@ private:
 
 signals:
 
-    void operate(const QString &cmd);
-
     void chessClicked(ChessLabel *chess);
 
-    void revealSide(int side_);
+    void soldierKilled();
 };
-
 
 #endif //ARMYCHESS_CHESSLABEL_H
