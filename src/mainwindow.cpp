@@ -76,8 +76,7 @@ void MainWindow::createServer() {
         server = new QTcpServer(this);
         QObject::connect(server, &QTcpServer::newConnection, this, &MainWindow::connectionEstablished);
 
-        //    server->listen(host, PORT);  // TODO: set port & disable localhost
-        server->listen(QHostAddress::LocalHost, PORT);
+        server->listen(host, PORT);
         this->setStatus(LISTENING);
     }
     auto win = new createServerWindow(this, ip, state);
@@ -98,8 +97,7 @@ void MainWindow::connectServer() {
 
 bool MainWindow::tryConnect(const QString &ip) {
     socket = new QTcpSocket(this);
-//    client->connectToHost(ip, PORT);  // TODO: disable localhost
-    socket->connectToHost(QHostAddress::LocalHost, PORT);
+    socket->connectToHost(ip, PORT);
     QObject::connect(socket, &QTcpSocket::connected, this, &MainWindow::connectionEstablished);
     return true;
 }

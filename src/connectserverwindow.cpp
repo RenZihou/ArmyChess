@@ -2,7 +2,7 @@
 // -*- encoding: utf-8 -*-
 // @Author: RZH
 
-// You may need to build the project (run Qt uic code generator) to get "ui_connectServerWindow.h" resolved
+#include <QMessageBox>
 
 #include "connectserverwindow.h"
 #include "ui_connectServerWindow.h"
@@ -22,7 +22,14 @@ connectServerWindow::~connectServerWindow() {
 }
 
 void connectServerWindow::connectClicked() {
-    emit this->tryConnect(ui->IpInput->text());
+    auto server_add = QHostAddress(ui->IpInput->text());
+    if (server_add.protocol() == QAbstractSocket::IPv4Protocol)
+        emit this->tryConnect(ui->IpInput->text());
+    else {
+        QMessageBox::warning(this, "Invalid ip",
+                             "This is an invalid ipv4 address. Check and input again.");
+        ui->IpInput->clear();
+    }
 }
 
 void connectServerWindow::setInfo(int state) {
