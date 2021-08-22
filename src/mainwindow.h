@@ -30,6 +30,8 @@ public:
 
     void changeSide(int side);
 
+    void timeOut(int count);
+
 private:
     int state = DISCONNECTED;
     bool opponent_started = false;

@@ -148,6 +148,48 @@
      <string>Time Left: [20]</string>
     </property>
    </widget>
+   <widget class="QLabel" name="timeoutLabel">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>180</y>
+      <width>211</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Courier New</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Timeout Count: [0]</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="tipsLabel">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>320</y>
+      <width>341</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>仿宋</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;简明规则：&lt;/span&gt;&lt;/p&gt;&lt;p&gt;司令 &amp;gt; 军长 &amp;gt; 师长 &amp;gt; 旅长 &amp;gt; 团长 &amp;gt;&lt;br&gt;营长 &amp;gt; 连长 &amp;gt; 排长 &amp;gt; 工兵&lt;/p&gt;&lt;p&gt;地雷与军旗不可移动&lt;br&gt;只有工兵可以排雷和扛旗&lt;br&gt;炸弹可以与军旗外任何棋子同归于尽&lt;br&gt;位于行营（圆圈）中的棋子无敌&lt;/p&gt;&lt;p&gt;排除对方三颗地雷后扛旗、或者消灭对方&lt;br&gt;所有可移动棋子从而取得胜利吧！&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

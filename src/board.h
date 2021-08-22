@@ -27,7 +27,7 @@ public:
 
     [[nodiscard]] int getSide() const;
 
-    void flipTurn();
+    void flipTurn(int turn_ = -1);
 
     void resetTimer();
 
@@ -41,7 +41,7 @@ private:
     int timeout = 0;
     int time = 20;
     int total_turn = 0;
-    bool turn = false;
+    bool turn = false;  // is player's turn
     QTimer *timer;
     Ui::Board *ui;
     QGridLayout *upper;
@@ -81,6 +81,8 @@ signals:
     void sideChanged(int side_);
 
     void timeChanged(int time_);
+
+    void timeOut(int count);
 
     void canAdmitDefeat();
 };

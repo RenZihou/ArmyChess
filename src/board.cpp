@@ -116,7 +116,10 @@ Board::~Board() {
 
 int Board::getSide() const { return side; }
 
-void Board::flipTurn() { this->turn = !turn; }
+void Board::flipTurn(int turn_ /* = -1 */) {
+    if (turn_ == -1) this->turn = !turn;
+    else turn = turn_;
+}
 
 ChessLabel *Board::getChess(int x, int y) const {
     for (const auto &c : chess) {
@@ -380,6 +383,7 @@ void Board::countDown() {
         }
         this->flipTurn();
         this->resetTimer();
+        emit this->timeOut(timeout);
         emit this->stepProceeded("finish");
     }
 }
@@ -435,6 +439,7 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         this->resetTimer();
     } else if (*it == "win" || *it == "lose") {
         timer->stop();
+        this->flipTurn(0);
     }
 
     if (send) emit this->stepProceeded(cmd_);

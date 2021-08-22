@@ -21,7 +21,9 @@ add_executable(ArmyChess
         src/main.cpp
         src/mainwindow.cpp src/mainwindow.h src/mainwindow.ui
         src/board.cpp src/board.h src/board.ui
-        resources/resources.qrc src/ChessLabel.cpp src/ChessLabel.h src/createserverwindow.cpp src/createserverwindow.h src/createserverwindow.ui src/connectserverwindow.cpp src/connectserverwindow.h src/connectserverwindow.ui)
+        resources/resources.qrc src/ChessLabel.cpp src/ChessLabel.h 
+        src/createserverwindow.cpp src/createserverwindow.h src/createserverwindow.ui 
+        src/connectserverwindow.cpp src/connectserverwindow.h src/connectserverwindow.ui)
 target_link_libraries(ArmyChess
         Qt::Core
         Qt::Gui
@@ -60,4 +62,4 @@ if (WIN32)
 endif ()
 
 add_definitions(-DscaleRatio=1.5)
-#add_definitions(-DCHEAT)
+add_definitions(-DCHEAT)

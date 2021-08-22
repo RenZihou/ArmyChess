@@ -19,16 +19,20 @@ MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     this->setWindowTitle("Army Chess");
-    this->setFixedSize(static_cast<int>(1000 / scaleRatio), static_cast<int>(940 / scaleRatio));
+    this->setFixedSize(static_cast<int>(1100 / scaleRatio), static_cast<int>(940 / scaleRatio));
     this->setFocusPolicy(Qt::NoFocus);
     ui->connectLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(10 / scaleRatio),
-                                  static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
-    ui->sideLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(70 / scaleRatio),
-                               static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
-    ui->turnLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(130 / scaleRatio),
-                               static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
-    ui->timeLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(190 / scaleRatio),
-                               static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
+                                  static_cast<int>(400 / scaleRatio), static_cast<int>(50 / scaleRatio));
+    ui->sideLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(60 / scaleRatio),
+                               static_cast<int>(400 / scaleRatio), static_cast<int>(50 / scaleRatio));
+    ui->turnLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(110 / scaleRatio),
+                               static_cast<int>(400 / scaleRatio), static_cast<int>(50 / scaleRatio));
+    ui->timeLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(160 / scaleRatio),
+                               static_cast<int>(400 / scaleRatio), static_cast<int>(50 / scaleRatio));
+    ui->timeoutLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(210 / scaleRatio),
+                                  static_cast<int>(400 / scaleRatio), static_cast<int>(50 / scaleRatio));
+    ui->tipsLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(350 / scaleRatio),
+                                  static_cast<int>(400 / scaleRatio), static_cast<int>(400 / scaleRatio));
     ui->actionStart->setEnabled(false);
     ui->actionAdmit_Defeat->setEnabled(false);
     QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
@@ -37,8 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionAdmit_Defeat, &QAction::triggered, this, &MainWindow::admitDefeat);
 
 #ifdef CHEAT
-    ui->cheatBar->setGeometry(static_cast<int>(640 / scaleRatio), static_cast<int>(840 / scaleRatio),
-                              static_cast<int>(360 / scaleRatio), static_cast<int>(100 / scaleRatio));
+    ui->cheatBar->setGeometry(static_cast<int>(660 / scaleRatio), static_cast<int>(820 / scaleRatio),
+                              static_cast<int>(400 / scaleRatio), static_cast<int>(120 / scaleRatio));
     cheatLayout = new QGridLayout(ui->cheatBar);
     cheatCmd = new QLineEdit(ui->cheatBar);
     cheatLayout->addWidget(cheatCmd);
@@ -55,6 +59,10 @@ MainWindow::~MainWindow() {
 void MainWindow::changeSide(int side) {
     ui->sideLabel->setText(QString("Your Side: [%1]").arg(side == RED ? "red" : "blue"));
     // TODO: support UNKNOWN
+}
+
+void MainWindow::timeOut(int count) {
+    ui->timeoutLabel->setText(QString("Timeout Count: [%1]").arg(count));
 }
 
 void MainWindow::createServer() {
@@ -230,6 +238,7 @@ void MainWindow::connectBoard() {
     QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
     QObject::connect(ui->board, &Board::timeChanged, this, &MainWindow::setTime);
     QObject::connect(ui->board, &Board::canAdmitDefeat, this, &MainWindow::enableAdmitDefeat);
+    QObject::connect(ui->board, &Board::timeOut, this, &MainWindow::timeOut);
 }
 
 void MainWindow::start() {
