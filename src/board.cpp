@@ -212,6 +212,19 @@ void Board::chessClicked(ChessLabel *chess_) {
                         this->flipTurn();
                         emit this->stepProceeded("finish");
                         this->resetTimer();
+                    case 2:  // kill and win
+                        chess_->kill();
+                        emit this->stepProceeded(QString("kill %1 %2")
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
+                        selected->moveToEmpty(chess_);
+                        timer->stop();
+                        emit this->stepProceeded(QString("move %1 %2 %3 %4")
+                                                         .arg(selected->getXInd())
+                                                         .arg(selected->getYInd())
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
+                        emit this->stepProceeded("win");
                 }
             }
             this->setSelected(nullptr);
@@ -263,7 +276,7 @@ int Board::killable(ChessLabel *current, ChessLabel *target) {
     if (target->inBunker()) return -2;
     switch (target->getType()) {
         case ENSIGN:  // TODO: win
-            return (current->getType() == SAPPER && !landmine_left) ? 1 : -2;
+            return (current->getType() == SAPPER && !landmine_left) ? 2 : -2;
         case BOMB:
             return 0;
         case LANDMINE:
@@ -360,18 +373,22 @@ void Board::setSelected(ChessLabel *s) {
 
 void Board::countDown() {
     --time;
+    emit this->timeChanged(time);
     if (turn && time == 0) {
         ++timeout;
         qDebug() << "timeout" << timeout << "times";
+        if (timeout == 3) {  // judge lose
+            emit this->stepProceeded("lose");
+            timer->stop();
+            return;
+        }
         this->flipTurn();
         this->resetTimer();
         emit this->stepProceeded("finish");
-    }  // TODO: timeout lose
-    emit this->timeChanged(time);
+    }
 }
 
 void Board::resetTimer() {
-//    timer.stop();
     timer->start(1000);
     time = 20;
     emit this->timeChanged(time);
@@ -410,6 +427,11 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
     } else if (*it == "finish") {
         this->flipTurn();
         this->resetTimer();
+    } else if (*it == "win" || *it == "lose") {
+        timer->stop();
+//        emit this->win(*it == "win");
+//    } else if (*it == "lose") {
+//        timer->stop();
     }
 
     if (send) emit this->stepProceeded(cmd_);

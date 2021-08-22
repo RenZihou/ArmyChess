@@ -25,5 +25,5 @@ This is my project (#1) for the summer semester (30240522-3) in Tsinghua Univers
 #### Victory
 
 - [ ] judge victory
-- [ ] timeout
-- [ ] pop-up window
+- [x] timeout - 2021/08/22
+- [x] pop-up window - 2021/08/22

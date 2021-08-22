@@ -65,6 +65,8 @@ private:
 
     void start();
 
+    void win(bool w = true);
+
 #ifdef CHEAT
     QGridLayout *cheatLayout;
     QLineEdit *cheatCmd;

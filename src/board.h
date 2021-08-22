@@ -57,7 +57,7 @@ private:
 
     bool movable(ChessLabel *current, ChessLabel *target);
 
-    // ret: {-2: ILLEGAL}, {-1: NO}, {0: TIE}, {1: KILLABLE}
+    // ret: {-2: ILLEGAL}, {-1: NO}, {0: TIE}, {1: KILLABLE}, {2: WIN}
     int killable(ChessLabel *current, ChessLabel *target);
 
     bool reachable(ChessLabel *current, ChessLabel *target, bool can_turn) const;
@@ -75,6 +75,8 @@ signals:
     void sideChanged(int side_);
 
     void timeChanged(int time_);
+
+    void win(int w);
 };
 
 

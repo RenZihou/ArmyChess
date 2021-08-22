@@ -5,6 +5,7 @@
 #include <random>
 
 #include <QHostInfo>
+#include <QMessageBox>
 
 #include "mainwindow.h"
 #include "ui_MainWindow.h"
@@ -148,8 +149,10 @@ void MainWindow::connectionInterrupted() {
 
 void MainWindow::send(const QString &cmd) {
     if (socket == nullptr) return;
-    if (cmd == "finish") this->setTurn("Current Player: [opponent]");
     socket->write(cmd.toUtf8().append("\n"));
+    if (cmd == "finish") this->setTurn("Current Player: [opponent]");
+    else if (cmd == "win") this->win();
+    else if (cmd == "lose") this->win(false);
     qDebug() << "[sent]" << cmd;
 }
 
@@ -172,15 +175,17 @@ void MainWindow::receive() {
                     ui->board->resetTimer();
                     this->setTurn("Current Player: [you]");
                     break;
-                case 1:
-                    ui->board->resetTimer();
-                    this->setTurn("Current Player: [opponent]");
-                    break;
-                default:
-                    break;
+                    case 1:
+                        ui->board->resetTimer();
+                        this->setTurn("Current Player: [opponent]");
+                        break;
+                        default:
+                            break;
             }
         } else {
             if (cmd.startsWith("finish")) this->setTurn("Current Player: [you]");
+            else if (cmd.startsWith("win")) this->win(false);
+            else if (cmd.startsWith("lose")) this->win();
             ui->board->exec(cmd, false);
         }
     }
@@ -222,6 +227,7 @@ void MainWindow::connectBoard() {
     QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
     QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
     QObject::connect(ui->board, &Board::timeChanged, this, &MainWindow::setTime);
+//    QObject::connect(ui->board, &Board::win, this, &MainWindow::win);
 }
 
 void MainWindow::start() {
@@ -238,6 +244,16 @@ void MainWindow::start() {
         ui->board->resetTimer();
     } else this->setTurn("[waiting opponent]");
     this->send(QString("start %1").arg(turn));
+}
+
+void MainWindow::win(bool w /* = true */) {
+//    QMessageBox::information(this, "Game Over", w ? "You Win :)" : "You Lose :(");
+    auto msg = new QMessageBox(this);
+    msg->setWindowTitle("Game Over");
+    msg->setText(w ? "You Win :)" : "You Lose :(");
+    msg->setStandardButtons(QMessageBox::Ok);
+    msg->setAttribute(Qt::WA_DeleteOnClose);
+    msg->show();
 }
 
 #ifdef CHEAT
