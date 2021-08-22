@@ -43,6 +43,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::changeSide(int side) {
+    qDebug() << 1;
     ui->sideLabel->setText(QString("Your Side: [%1]").arg(side == RED ? "red" : "blue"));
     // TODO: support UNKNOWN
 }
@@ -118,7 +119,7 @@ void MainWindow::connectionEstablished() {
         long long seed = std::time(nullptr);
         ui->board = new Board(ui->centralwidget, seed);
         ui->board->show();
-        QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
+        this->connectBoard();
         this->send(QString("seed %1").arg(seed));
         this->setStatus(CONNECTED_SERVER);
     } else {
@@ -142,21 +143,23 @@ void MainWindow::connectionInterrupted() {
 
 void MainWindow::send(const QString &cmd) {
     if (socket == nullptr) return;
-    socket->write(cmd.toUtf8());
+    socket->write(cmd.toUtf8().append("\n"));
     qDebug() << "[sent]" << cmd;
 }
 
 void MainWindow::receive() {
-    QString cmd = socket->readLine();
-    qDebug() << "[received]" << cmd;
-    if (cmd.startsWith("seed")) {
-        long long seed = cmd.remove("seed ").toLongLong();
-        delete ui->board;
-        ui->board = new Board(ui->centralwidget, seed);
-        ui->board->show();
-        QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
-    } else {
-        ui->board->exec(cmd, false);
+    while (socket->canReadLine()) {
+        QString cmd = socket->readLine();
+        qDebug() << "[received]" << cmd;
+        if (cmd.startsWith("seed")) {
+            long long seed = cmd.remove("seed ").toLongLong();
+            delete ui->board;
+            ui->board = new Board(ui->centralwidget, seed);
+            ui->board->show();
+            this->connectBoard();
+        } else {
+            ui->board->exec(cmd, false);
+        }
     }
 }
 
@@ -182,6 +185,11 @@ void MainWindow::setStatus(int new_state) {
     ui->actionCreate_Connection->setEnabled(new_state != CONNECTED_CLIENT);
     ui->actionConnect_to_Server->setEnabled(new_state == DISCONNECTED || new_state == CONNECTED_CLIENT);
     emit statusChanged(new_state);
+}
+
+void MainWindow::connectBoard() {
+    QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
+    QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
 }
 
 #ifdef CHEAT

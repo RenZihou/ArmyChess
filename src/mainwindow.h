@@ -56,6 +56,8 @@ private:
 
     void setStatus(int new_state);
 
+    void connectBoard();
+
 #ifdef CHEAT
     QGridLayout *cheatLayout;
     QLineEdit *cheatCmd;

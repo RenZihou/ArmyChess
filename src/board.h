@@ -65,8 +65,6 @@ signals:
 
     void stepProceeded(const QString &cmd_);
 
-    void genMap(const QString &cmd_);
-
     void sideChanged(int side_);
 };
 

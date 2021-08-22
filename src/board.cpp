@@ -75,7 +75,6 @@ Board::Board(QWidget *parent, long long seed) :
     // however, qt6 requires mingw 8.1.0,
     // so I have to choose a not recommended way (use time as seed)
     // ==== NOTICE end ====
-//    std::shuffle(chess.begin(), chess.end(), std::mt19937(std::time(nullptr)));
     if (!seed) seed = std::time(nullptr);
     std::shuffle(chess.begin(), chess.end(), std::mt19937(seed));
 
@@ -145,7 +144,7 @@ void Board::chessClicked(ChessLabel *chess_) {
     if (!chess_->isRevealed()) {
         chess_->reveal();
         this->setSelected(nullptr);
-        this->stepProceeded(
+        emit this->stepProceeded(
                 QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
         this->chessRevealed(chess_->getSide());
         return;
@@ -156,23 +155,47 @@ void Board::chessClicked(ChessLabel *chess_) {
     } else {
         if (chess_->getSide() == side) this->setSelected(chess_);  // select another
         else if (chess_->getSide() == UNKNOWN) {  // move
-            if (Board::movable(selected, chess_)) selected->moveToEmpty(chess_);
+            if (Board::movable(selected, chess_)) {
+                selected->moveToEmpty(chess_);
+                emit this->stepProceeded(QString("move %1 %2 %3 %4")
+                                                 .arg(selected->getXInd())
+                                                 .arg(selected->getYInd())
+                                                 .arg(chess_->getXInd())
+                                                 .arg(chess_->getYInd()));
+            }
             this->setSelected(nullptr);
         } else {  // move and try to kill opponent
             if (Board::movable(selected, chess_)) {
                 switch (Board::killable(selected, chess_)) {
                     case -2:  // illegal movement
-                    break;
+                        break;
                     case -1:  // killed by opponent
-                    selected->kill();
-                    break;
+                        selected->kill();
+                        emit this->stepProceeded(QString("kill %1 %2")
+                                                         .arg(selected->getXInd())
+                                                         .arg(selected->getYInd()));
+                        break;
                     case 0:  // die together
-                    chess_->kill();
-                    selected->kill();
-                    break;
+                        chess_->kill();
+                        emit this->stepProceeded(QString("kill %1 %2")
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
+                        selected->kill();
+                        emit this->stepProceeded(QString("kill %1 %2")
+                                                         .arg(selected->getXInd())
+                                                         .arg(selected->getYInd()));
+                        break;
                     case 1:  // kill opponent
-                    chess_->kill();
-                    selected->moveToEmpty(chess_);
+                        chess_->kill();
+                        emit this->stepProceeded(QString("kill %1 %2")
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
+                        selected->moveToEmpty(chess_);
+                        emit this->stepProceeded(QString("move %1 %2 %3 %4")
+                                                         .arg(selected->getXInd())
+                                                         .arg(selected->getYInd())
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
                 }
             }
             this->setSelected(nullptr);
@@ -234,7 +257,8 @@ int Board::killable(ChessLabel *current, ChessLabel *target) {
             } else if (current->getType() == BOMB) {
                 --landmine_left;
                 return 0;
-            } return -2;
+            }
+            return -2;
         default:
             if (current->getType() == BOMB) return 0;
             if (current->getType() == target->getType()) return 0;
@@ -309,8 +333,6 @@ bool Board::reachable(ChessLabel *current, ChessLabel *target, bool can_turn) co
 }
 
 void Board::connectChess(ChessLabel *c) const {
-//    QObject::connect(c, &ChessLabel::operate, this, &Board::stepProceeded);
-//    QObject::connect(c, &ChessLabel::revealSide, this, &Board::chessRevealed);
     QObject::connect(c, &ChessLabel::chessClicked, this, qOverload<ChessLabel *>(&Board::chessClicked));
 }
 
@@ -331,20 +353,21 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
     if (*it == "reveal") {
         int x = stoi(*(++it));
         int y = stoi(*(++it));
-        ChessLabel *c = this->getChess(x, y);
+        auto c = this->getChess(x, y);
         if (c != nullptr) c->reveal();
     } else if (*it == "kill") {
         int x = stoi(*(++it));
         int y = stoi(*(++it));
-        ChessLabel *c = this->getChess(x, y);
+        auto c = this->getChess(x, y);
         if (c != nullptr) c->kill();
     } else if (*it == "move") {
         int x0 = stoi(*(++it));
         int y0 = stoi(*(++it));
         int x1 = stoi(*(++it));
         int y1 = stoi(*(++it));
-        this->chessClicked(x0, y0);
-        this->chessClicked(x1, y1);
+        auto c0 = this->getChess(x0, y0);
+        auto c1 = this->getChess(x1, y1);
+        if (c0 != nullptr && c1 != nullptr) c0->moveToEmpty(c1);
     } else if (*it == "side") {
         int side_ = stoi(*(++it));
         side = 1 - side_;
