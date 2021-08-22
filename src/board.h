@@ -25,12 +25,17 @@ public:
 
     ~Board() override;
 
+    void flipTurn();
+
     void exec(const QString &cmd_, bool send = true);
 
 private:
     int side = UNKNOWN;
     int prev_side = UNKNOWN;
     int landmine_left = 3;
+    int timeout = 0;
+    int time = 20;
+    bool turn = false;
     QTimer timer;
     Ui::Board *ui;
     QGridLayout *upper;
@@ -61,11 +66,17 @@ private:
 
     void setSelected(ChessLabel *s = nullptr);
 
+    void countDown();
+
+    void resetTimer();
+
 signals:
 
     void stepProceeded(const QString &cmd_);
 
     void sideChanged(int side_);
+
+    void timeChanged(int time_);
 };
 
 

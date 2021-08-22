@@ -111,6 +111,8 @@ Board::~Board() {
     delete selected;
 }
 
+void Board::flipTurn() { this->turn = !turn; }
+
 ChessLabel *Board::getChess(int x, int y) const {
     for (const auto &c : chess) {
         if (c->getXInd() == x && c->getYInd() == y) return c;
@@ -134,19 +136,17 @@ void Board::drawBoard() {
     }
 }
 
-void Board::chessClicked(int x, int y) {
-    auto c = this->getChess(x, y);
-    this->chessClicked(c);
-}
-
 void Board::chessClicked(ChessLabel *chess_) {
     qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd();
+    if (!turn) return;  // not player's turn
     if (!chess_->isRevealed()) {
         chess_->reveal();
         this->setSelected(nullptr);
         emit this->stepProceeded(
                 QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
         this->chessRevealed(chess_->getSide());
+        this->flipTurn();
+        emit this->stepProceeded("finish");
         return;
     }
     if (selected == nullptr) {
@@ -162,6 +162,8 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                  .arg(selected->getYInd())
                                                  .arg(chess_->getXInd())
                                                  .arg(chess_->getYInd()));
+                this->flipTurn();
+                emit this->stepProceeded("finish");
             }
             this->setSelected(nullptr);
         } else {  // move and try to kill opponent
@@ -174,6 +176,8 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
+                        this->flipTurn();
+                        emit this->stepProceeded("finish");
                         break;
                     case 0:  // die together
                         chess_->kill();
@@ -184,6 +188,8 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
+                        this->flipTurn();
+                        emit this->stepProceeded("finish");
                         break;
                     case 1:  // kill opponent
                         chess_->kill();
@@ -196,6 +202,8 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(selected->getYInd())
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
+                        this->flipTurn();
+                        emit this->stepProceeded("finish");
                 }
             }
             this->setSelected(nullptr);
@@ -342,6 +350,22 @@ void Board::setSelected(ChessLabel *s) {
     selected = s;
 }
 
+void Board::countDown() {
+    --time;
+    if (time == 0) {
+        this->flipTurn();
+        emit this->stepProceeded("finish");
+    }  // TODO: timeout
+    emit this->timeChanged(time);
+}
+
+void Board::resetTimer() {
+//    timer.stop();
+    timer.start(1000);
+    time = 20;
+    emit this->timeChanged(time);
+}
+
 void Board::exec(const QString &cmd_, bool send /* = true */) {
     std::string cmd = cmd_.toStdString();
     std::string part;
@@ -372,6 +396,8 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         int side_ = stoi(*(++it));
         side = 1 - side_;
         emit this->sideChanged(side);
+    } else if (*it == "finish") {
+        this->flipTurn();
     }
 
     if (send) emit this->stepProceeded(cmd_);

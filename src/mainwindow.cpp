@@ -2,6 +2,8 @@
 // -*- encoding: utf-8 -*-
 // @Author: RZH
 
+#include <random>
+
 #include <QHostInfo>
 
 #include "mainwindow.h"
@@ -22,8 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
                                   static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
     ui->sideLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(70 / scaleRatio),
                                static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
+    ui->turnLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(130 / scaleRatio),
+                                  static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
+    ui->timeLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(190 / scaleRatio),
+                               static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
     QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
     QObject::connect(ui->actionConnect_to_Server, &QAction::triggered, this, &MainWindow::connectServer);
+    QObject::connect(ui->actionStart, &QAction::triggered, this, &MainWindow::start);
     QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
 
 #ifdef CHEAT
@@ -43,7 +50,6 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::changeSide(int side) {
-    qDebug() << 1;
     ui->sideLabel->setText(QString("Your Side: [%1]").arg(side == RED ? "red" : "blue"));
     // TODO: support UNKNOWN
 }
@@ -143,6 +149,7 @@ void MainWindow::connectionInterrupted() {
 
 void MainWindow::send(const QString &cmd) {
     if (socket == nullptr) return;
+    if (cmd == "finish") this->setTurn("Current Player: [opponent]");
     socket->write(cmd.toUtf8().append("\n"));
     qDebug() << "[sent]" << cmd;
 }
@@ -157,7 +164,22 @@ void MainWindow::receive() {
             ui->board = new Board(ui->centralwidget, seed);
             ui->board->show();
             this->connectBoard();
+        } else if (cmd.startsWith("start")) {
+            opponent_started = true;
+            int turn = cmd.remove("start ").toInt();
+            switch (turn) {
+                case 0:
+                    ui->board->flipTurn();
+                    this->setTurn("Current Player: [you]");
+                    break;
+                case 1:
+                    this->setTurn("Current Player: [opponent]");
+                    break;
+                default:
+                    break;
+            }
         } else {
+            if (cmd.startsWith("finish")) this->setTurn("Current Player: [you]");
             ui->board->exec(cmd, false);
         }
     }
@@ -187,9 +209,32 @@ void MainWindow::setStatus(int new_state) {
     emit statusChanged(new_state);
 }
 
+void MainWindow::setTurn(const QString& text) {
+    ui->turnLabel->setText(text);
+}
+
+void MainWindow::setTime(int time) {
+    ui->timeLabel->setText(QString("Time Left: [%1]").arg(time));
+}
+
 void MainWindow::connectBoard() {
     QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
     QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
+}
+
+void MainWindow::start() {
+    int turn = -1;
+    if (opponent_started) {
+        std::mt19937 mt(std::time(nullptr));
+        std::uniform_real_distribution<double> dist(0, 1);
+        turn = (dist(mt) > 0.5);
+        if (turn) {
+            ui->board->flipTurn();
+            this->setTurn("Current Player: [you]");
+// TODO: label display
+        } else this->setTurn("Current Player: [opponent]");
+    } else this->setTurn("[waiting opponent]");
+    this->send(QString("start %1").arg(turn));
 }
 
 #ifdef CHEAT

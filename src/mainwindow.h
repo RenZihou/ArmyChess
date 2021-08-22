@@ -31,10 +31,11 @@ public:
     void changeSide(int side);
 
 private:
+    int state = DISCONNECTED;
+    bool opponent_started = false;
     Ui::MainWindow *ui;
     QTcpServer *server = nullptr;
     QTcpSocket *socket = nullptr;
-    int state = DISCONNECTED;
 
     void createServer();
 
@@ -56,7 +57,13 @@ private:
 
     void setStatus(int new_state);
 
+    void setTurn(const QString& text);
+
+    void setTime(int time);
+
     void connectBoard();
+
+    void start();
 
 #ifdef CHEAT
     QGridLayout *cheatLayout;
