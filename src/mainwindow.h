@@ -65,6 +65,10 @@ private:
 
     void start();
 
+    void enableAdmitDefeat();
+
+    void admitDefeat();
+
     void win(bool w = true);
 
 #ifdef CHEAT

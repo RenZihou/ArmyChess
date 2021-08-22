@@ -37,6 +37,7 @@ private:
     int landmine_left = 3;
     int timeout = 0;
     int time = 20;
+    int total_turn = 0;
     bool turn = false;
     QTimer *timer;
     Ui::Board *ui;
@@ -76,7 +77,7 @@ signals:
 
     void timeChanged(int time_);
 
-    void win(int w);
+    void canAdmitDefeat();
 };
 
 

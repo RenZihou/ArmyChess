@@ -26,12 +26,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sideLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(70 / scaleRatio),
                                static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
     ui->turnLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(130 / scaleRatio),
-                                  static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
+                               static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
     ui->timeLabel->setGeometry(static_cast<int>(670 / scaleRatio), static_cast<int>(190 / scaleRatio),
                                static_cast<int>(300 / scaleRatio), static_cast<int>(60 / scaleRatio));
+    ui->actionStart->setEnabled(false);
+    ui->actionAdmit_Defeat->setEnabled(false);
     QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
     QObject::connect(ui->actionConnect_to_Server, &QAction::triggered, this, &MainWindow::connectServer);
     QObject::connect(ui->actionStart, &QAction::triggered, this, &MainWindow::start);
+    QObject::connect(ui->actionAdmit_Defeat, &QAction::triggered, this, &MainWindow::admitDefeat);
 
 #ifdef CHEAT
     ui->cheatBar->setGeometry(static_cast<int>(640 / scaleRatio), static_cast<int>(840 / scaleRatio),
@@ -131,8 +134,10 @@ void MainWindow::connectionEstablished() {
     } else {
         this->setStatus(CONNECTED_CLIENT);
     }
+    ui->actionStart->setEnabled(true);
     QObject::connect(socket, &QTcpSocket::readyRead, this, &MainWindow::receive);
     QObject::connect(socket, &QTcpSocket::disconnected, this, &MainWindow::connectionInterrupted);
+
     qDebug() << "connection established";
 }
 
@@ -175,12 +180,12 @@ void MainWindow::receive() {
                     ui->board->resetTimer();
                     this->setTurn("Current Player: [you]");
                     break;
-                    case 1:
-                        ui->board->resetTimer();
-                        this->setTurn("Current Player: [opponent]");
-                        break;
-                        default:
-                            break;
+                case 1:
+                    ui->board->resetTimer();
+                    this->setTurn("Current Player: [opponent]");
+                    break;
+                default:
+                    break;
             }
         } else {
             if (cmd.startsWith("finish")) this->setTurn("Current Player: [you]");
@@ -215,7 +220,7 @@ void MainWindow::setStatus(int new_state) {
     emit statusChanged(new_state);
 }
 
-void MainWindow::setTurn(const QString& text) {
+void MainWindow::setTurn(const QString &text) {
     ui->turnLabel->setText(text);
 }
 
@@ -227,7 +232,7 @@ void MainWindow::connectBoard() {
     QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
     QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
     QObject::connect(ui->board, &Board::timeChanged, this, &MainWindow::setTime);
-//    QObject::connect(ui->board, &Board::win, this, &MainWindow::win);
+    QObject::connect(ui->board, &Board::canAdmitDefeat, this, &MainWindow::enableAdmitDefeat);
 }
 
 void MainWindow::start() {
@@ -244,10 +249,17 @@ void MainWindow::start() {
         ui->board->resetTimer();
     } else this->setTurn("[waiting opponent]");
     this->send(QString("start %1").arg(turn));
+    ui->actionStart->setEnabled(false);
+}
+
+void MainWindow::enableAdmitDefeat() { ui->actionAdmit_Defeat->setEnabled(true); }
+
+void MainWindow::admitDefeat() {
+    this->win(false);
+    ui->board->exec("lose");
 }
 
 void MainWindow::win(bool w /* = true */) {
-//    QMessageBox::information(this, "Game Over", w ? "You Win :)" : "You Lose :(");
     auto msg = new QMessageBox(this);
     msg->setWindowTitle("Game Over");
     msg->setText(w ? "You Win :)" : "You Lose :(");

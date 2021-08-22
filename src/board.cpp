@@ -148,9 +148,7 @@ void Board::chessClicked(ChessLabel *chess_) {
         emit this->stepProceeded(
                 QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
         this->chessRevealed(chess_->getSide());
-        this->flipTurn();
-        emit this->stepProceeded("finish");
-        this->resetTimer();
+        this->exec("finish");
         return;
     }
     if (selected == nullptr) {
@@ -166,9 +164,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                  .arg(selected->getYInd())
                                                  .arg(chess_->getXInd())
                                                  .arg(chess_->getYInd()));
-                this->flipTurn();
-                emit this->stepProceeded("finish");
-                this->resetTimer();
+                this->exec("finish");
             }
             this->setSelected(nullptr);
         } else {  // move and try to kill opponent
@@ -181,9 +177,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
-                        this->flipTurn();
-                        emit this->stepProceeded("finish");
-                        this->resetTimer();
+                        this->exec("finish");
                         break;
                     case 0:  // die together
                         chess_->kill();
@@ -194,9 +188,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
-                        this->flipTurn();
-                        emit this->stepProceeded("finish");
-                        this->resetTimer();
+                        this->exec("finish");
                         break;
                     case 1:  // kill opponent
                         chess_->kill();
@@ -209,9 +201,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(selected->getYInd())
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
-                        this->flipTurn();
-                        emit this->stepProceeded("finish");
-                        this->resetTimer();
+                        this->exec("finish");
                     case 2:  // kill and win
                         chess_->kill();
                         emit this->stepProceeded(QString("kill %1 %2")
@@ -425,13 +415,12 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         side = 1 - side_;
         emit this->sideChanged(side);
     } else if (*it == "finish") {
+        ++total_turn;
+        if (total_turn == 20) emit this->canAdmitDefeat();
         this->flipTurn();
         this->resetTimer();
     } else if (*it == "win" || *it == "lose") {
         timer->stop();
-//        emit this->win(*it == "win");
-//    } else if (*it == "lose") {
-//        timer->stop();
     }
 
     if (send) emit this->stepProceeded(cmd_);
