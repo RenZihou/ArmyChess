@@ -270,7 +270,7 @@ bool Board::movable(ChessLabel *current, ChessLabel *target) {
 int Board::killable(ChessLabel *current, ChessLabel *target) {
     if (target->inBunker()) return -2;
     switch (target->getType()) {
-        case ENSIGN:  // TODO: win
+        case ENSIGN:
             return (current->getType() == SAPPER && !landmine_left) ? 2 : -2;
         case BOMB:
             return 0;

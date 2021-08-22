@@ -45,7 +45,7 @@ void ChessLabel::kill() {
 
 void ChessLabel::highlight(bool h /* = true */) {
     h ? this->setStyleSheet("border: 2px solid red;")
-      : this->setStyleSheet("");  // TODO: change color
+      : this->setStyleSheet("");
 }
 
 QString ChessLabel::qrcFilename() const {

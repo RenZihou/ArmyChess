@@ -58,7 +58,6 @@ void MainWindow::changeSide(int side) {
 }
 
 void MainWindow::createServer() {
-    // TODO: server already created?
     // get local ip
     QString hostname = QHostInfo::localHostName();
     QHostInfo host_info = QHostInfo::fromName(hostname);
@@ -72,15 +71,15 @@ void MainWindow::createServer() {
             break;
         }
     }
-    if (state == DISCONNECTED) {
+    if (state == DISCONNECTED && server == nullptr) {
         // create server
         server = new QTcpServer(this);
         QObject::connect(server, &QTcpServer::newConnection, this, &MainWindow::connectionEstablished);
 
         //    server->listen(host, PORT);  // TODO: set port & disable localhost
         server->listen(QHostAddress::LocalHost, PORT);
+        this->setStatus(LISTENING);
     }
-    this->setStatus(LISTENING);
     auto win = new createServerWindow(this, ip, state);
     win->show();
     QObject::connect(win, &createServerWindow::rejected, this, &MainWindow::stopServer);
@@ -244,7 +243,6 @@ void MainWindow::start() {
         if (turn) {
             ui->board->flipTurn();
             this->setTurn("Current Player: [you]");
-// TODO: label display
         } else this->setTurn("Current Player: [opponent]");
         ui->board->resetTimer();
     } else this->setTurn("[waiting opponent]");

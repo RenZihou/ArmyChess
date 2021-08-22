@@ -60,4 +60,4 @@ if (WIN32)
 endif ()
 
 add_definitions(-DscaleRatio=1.5)
-add_definitions(-DCHEAT)
+#add_definitions(-DCHEAT)
