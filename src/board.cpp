@@ -360,10 +360,13 @@ void Board::setSelected(ChessLabel *s) {
 
 void Board::countDown() {
     --time;
-    if (time == 0) {
+    if (turn && time == 0) {
+        ++timeout;
+        qDebug() << "timeout" << timeout << "times";
         this->flipTurn();
+        this->resetTimer();
         emit this->stepProceeded("finish");
-    }  // TODO: timeout
+    }  // TODO: timeout lose
     emit this->timeChanged(time);
 }
 
