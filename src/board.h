@@ -27,6 +27,8 @@ public:
 
     void flipTurn();
 
+    void resetTimer();
+
     void exec(const QString &cmd_, bool send = true);
 
 private:
@@ -36,7 +38,7 @@ private:
     int timeout = 0;
     int time = 20;
     bool turn = false;
-    QTimer timer;
+    QTimer *timer;
     Ui::Board *ui;
     QGridLayout *upper;
     QGridLayout *lower;
@@ -48,8 +50,6 @@ private:
     void drawBoard();
 
     void chessClicked(ChessLabel *chess_);
-
-    void chessClicked(int x, int y);
 
     void chessRevealed(int side_);
 
@@ -67,8 +67,6 @@ private:
     void setSelected(ChessLabel *s = nullptr);
 
     void countDown();
-
-    void resetTimer();
 
 signals:
 

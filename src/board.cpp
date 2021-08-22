@@ -12,7 +12,7 @@
 
 
 Board::Board(QWidget *parent, long long seed) :
-        QWidget(parent), ui(new Ui::Board) {
+        QWidget(parent), ui(new Ui::Board), timer(new QTimer(this)){
     int w = static_cast<int>(640 / scaleRatio);
     int h = static_cast<int>(920 / scaleRatio);
     ui->setupUi(this);
@@ -101,12 +101,15 @@ Board::Board(QWidget *parent, long long seed) :
     }
     chess.insert(chess.end(), empties.begin(), empties.end());
 
+    QObject::connect(this->timer, &QTimer::timeout, this, &Board::countDown);
+
     this->drawBoard();
 }
 
 Board::~Board() {
     delete upper;
     delete lower;
+    delete timer;
     delete ui;
     delete selected;
 }
@@ -147,6 +150,7 @@ void Board::chessClicked(ChessLabel *chess_) {
         this->chessRevealed(chess_->getSide());
         this->flipTurn();
         emit this->stepProceeded("finish");
+        this->resetTimer();
         return;
     }
     if (selected == nullptr) {
@@ -164,6 +168,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                  .arg(chess_->getYInd()));
                 this->flipTurn();
                 emit this->stepProceeded("finish");
+                this->resetTimer();
             }
             this->setSelected(nullptr);
         } else {  // move and try to kill opponent
@@ -178,6 +183,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(selected->getYInd()));
                         this->flipTurn();
                         emit this->stepProceeded("finish");
+                        this->resetTimer();
                         break;
                     case 0:  // die together
                         chess_->kill();
@@ -190,6 +196,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(selected->getYInd()));
                         this->flipTurn();
                         emit this->stepProceeded("finish");
+                        this->resetTimer();
                         break;
                     case 1:  // kill opponent
                         chess_->kill();
@@ -204,6 +211,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(chess_->getYInd()));
                         this->flipTurn();
                         emit this->stepProceeded("finish");
+                        this->resetTimer();
                 }
             }
             this->setSelected(nullptr);
@@ -361,7 +369,7 @@ void Board::countDown() {
 
 void Board::resetTimer() {
 //    timer.stop();
-    timer.start(1000);
+    timer->start(1000);
     time = 20;
     emit this->timeChanged(time);
 }
@@ -398,6 +406,7 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         emit this->sideChanged(side);
     } else if (*it == "finish") {
         this->flipTurn();
+        this->resetTimer();
     }
 
     if (send) emit this->stepProceeded(cmd_);

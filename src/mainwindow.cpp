@@ -31,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionCreate_Connection, &QAction::triggered, this, &MainWindow::createServer);
     QObject::connect(ui->actionConnect_to_Server, &QAction::triggered, this, &MainWindow::connectServer);
     QObject::connect(ui->actionStart, &QAction::triggered, this, &MainWindow::start);
-    QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
 
 #ifdef CHEAT
     ui->cheatBar->setGeometry(static_cast<int>(640 / scaleRatio), static_cast<int>(840 / scaleRatio),
@@ -170,9 +169,11 @@ void MainWindow::receive() {
             switch (turn) {
                 case 0:
                     ui->board->flipTurn();
+                    ui->board->resetTimer();
                     this->setTurn("Current Player: [you]");
                     break;
                 case 1:
+                    ui->board->resetTimer();
                     this->setTurn("Current Player: [opponent]");
                     break;
                 default:
@@ -220,6 +221,7 @@ void MainWindow::setTime(int time) {
 void MainWindow::connectBoard() {
     QObject::connect(ui->board, &Board::stepProceeded, this, &MainWindow::send);
     QObject::connect(ui->board, &Board::sideChanged, this, &MainWindow::changeSide);
+    QObject::connect(ui->board, &Board::timeChanged, this, &MainWindow::setTime);
 }
 
 void MainWindow::start() {
@@ -233,6 +235,7 @@ void MainWindow::start() {
             this->setTurn("Current Player: [you]");
 // TODO: label display
         } else this->setTurn("Current Player: [opponent]");
+        ui->board->resetTimer();
     } else this->setTurn("[waiting opponent]");
     this->send(QString("start %1").arg(turn));
 }
