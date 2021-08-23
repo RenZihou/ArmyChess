@@ -81,9 +81,8 @@ void MainWindow::createServer() {
         server = new QTcpServer(this);
         QObject::connect(server, &QTcpServer::newConnection, this, &MainWindow::connectionEstablished);
 
-        server->listen(host, PORT);
-        qDebug() << server->errorString();
-        this->setStatus(LISTENING);
+        if (server->listen(host, PORT)) this->setStatus(LISTENING);
+        else qDebug() << "[LISTEN ERROR]" << server->errorString();
     }
     auto win = new createServerWindow(this, ip, state);
     win->show();
@@ -145,11 +144,6 @@ void MainWindow::connectionEstablished() {
 }
 
 void MainWindow::connectionInterrupted() {
-//    if (server != nullptr) {
-//        this->setStatus(LISTENING);
-//    } else {
-//        this->setStatus(DISCONNECTED);
-//    }
     this->setStatus(server == nullptr ? DISCONNECTED : LISTENING);
     socket = nullptr;
     qDebug() << "connection interrupted";

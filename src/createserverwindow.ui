@@ -42,7 +42,7 @@
    <item>
     <widget class="QLabel" name="ipLabel">
      <property name="text">
-      <string>TextLabel</string>
+      <string>Creating Server...</string>
      </property>
     </widget>
    </item>
