@@ -8,8 +8,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_C_COMPILER "C:/Program Files/MinGW/bin/gcc.exe")
-set(CMAKE_CXX_COMPILER "C:/Program Files/MinGW/bin/g++.exe")
 set(CMAKE_PREFIX_PATH "C:/Users/alex/AppData/Roaming/Qt/6.1.2/6.1.2/mingw81_64/lib/cmake")
 
 find_package(Qt6 COMPONENTS
