@@ -111,7 +111,7 @@ bool MainWindow::tryConnect(const QString &ip) {
 }
 
 void MainWindow::stopServer() {
-    socket->disconnectFromHost();
+    if (socket != nullptr) socket->disconnectFromHost();
     server->close();
     socket = nullptr;
     server = nullptr;
