@@ -12,9 +12,6 @@
 #include "createserverwindow.h"
 #include "connectserverwindow.h"
 
-#define PORT 4738
-
-
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -85,6 +82,7 @@ void MainWindow::createServer() {
         QObject::connect(server, &QTcpServer::newConnection, this, &MainWindow::connectionEstablished);
 
         server->listen(host, PORT);
+        qDebug() << server->errorString();
         this->setStatus(LISTENING);
     }
     auto win = new createServerWindow(this, ip, state);

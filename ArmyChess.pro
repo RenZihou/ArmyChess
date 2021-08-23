@@ -10,7 +10,7 @@ CONFIG += c++11
 
 INCLUDEPATH += src
 
-DEFINES += "scaleRatio=1.5" "CHEAT"
+DEFINES += "scaleRatio=1.5" "PORT=7173" "CHEAT"
 
 SOURCES += \
     src/main.cpp \
