@@ -42,6 +42,7 @@ private:
     int time = 20;
     int total_turn = 0;
     bool turn = false;  // is player's turn
+    bool frozen = false;  // only for debug: freeze game and no count-down
     QTimer *timer;
     Ui::Board *ui;
     QGridLayout *upper;

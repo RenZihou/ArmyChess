@@ -154,7 +154,7 @@ void Board::chessClicked(ChessLabel *chess_) {
         emit this->stepProceeded(
                 QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
         this->chessRevealed(chess_->getSide());
-        this->exec("finish");
+        if (!frozen) this->exec("finish");
         return;
     }
     if (selected == nullptr) {
@@ -170,7 +170,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                  .arg(selected->getYInd())
                                                  .arg(chess_->getXInd())
                                                  .arg(chess_->getYInd()));
-                this->exec("finish");
+                if (!frozen) this->exec("finish");
             }
             this->setSelected(nullptr);
         } else {  // move and try to kill opponent
@@ -183,7 +183,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
-                        this->exec("finish");
+                        if (!frozen) this->exec("finish");
                         break;
                     case 0:  // die together
                         chess_->kill();
@@ -194,7 +194,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
-                        this->exec("finish");
+                        if (!frozen) this->exec("finish");
                         break;
                     case 1:  // kill opponent
                         chess_->kill();
@@ -207,7 +207,7 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                          .arg(selected->getYInd())
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
-                        this->exec("finish");
+                        if (!frozen) this->exec("finish");
                         break;
                     case 2:  // kill and win
                         chess_->kill();
@@ -428,6 +428,13 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         auto c0 = this->getChess(x0, y0);
         auto c1 = this->getChess(x1, y1);
         if (c0 != nullptr && c1 != nullptr) c0->moveToEmpty(c1);
+    } else if (*it == "freeze") {
+        if (frozen) {
+            timer->start(1000);
+        } else {
+            timer->stop();
+        }
+        frozen = !frozen;
     } else if (*it == "side") {
         int side_ = stoi(*(++it));
         side = 1 - side_;
