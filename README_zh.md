@@ -28,11 +28,13 @@
 使用`qmake`无需过多设置，只需在项目根目录执行如下命令：
 
 ```
-> qmake
+> mkdir build
+> cd build
+> qmake ..
 > make
 ```
 
-编译好的可执行文件将会保存于根目录。
+编译好的可执行文件将会保存于`./build/release`。
 
 ## 运行游戏
 

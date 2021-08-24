@@ -12,7 +12,7 @@
 
 
 Board::Board(QWidget *parent, long long seed) :
-        QWidget(parent), ui(new Ui::Board), timer(new QTimer(this)) {
+        QWidget(parent), timer(new QTimer(this)), ui(new Ui::Board) {
     int w = static_cast<int>(640 / scaleRatio);
     int h = static_cast<int>(920 / scaleRatio);
     ui->setupUi(this);
@@ -299,7 +299,7 @@ bool Board::reachable(ChessLabel *current, ChessLabel *target, bool can_turn) co
     if (can_turn) {
         std::vector<ChessLabel *> highway = {current};
         int prev_size = 0;
-        while (highway.size() != prev_size) {
+        while (static_cast<int>(highway.size()) != prev_size) {
             int inc_size = 0;
             for (int h = static_cast<int>(highway.size()) - 1; h >= prev_size; --h) {
                 for (int direction = 0; direction < 4; ++direction) {

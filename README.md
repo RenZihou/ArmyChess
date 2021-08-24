@@ -9,7 +9,7 @@ This is my project (#1) for the summer semester (30240522-3) in Tsinghua Univers
 
 This program supports both `cmake` and `qmake`.
 
-#### Using cmake
+### Using cmake
 
 You need to specify your `CMAKE_PREFIX_PATH` in `CMakeLists.txt` to the `cmake` folder provided
 by Qt. It should look like `QT_INSTALL_FOLDER/QT_VERSION/mingw81_64/lib/cmake`.
@@ -19,10 +19,12 @@ by Qt. It should look like `QT_INSTALL_FOLDER/QT_VERSION/mingw81_64/lib/cmake`.
 > cmake --build build
 ```
 
-#### Using qmake
+### Using qmake
 
 ```
-> qmake
+> mkdir build
+> cd build
+> qmake ..
 > make
 ```
 

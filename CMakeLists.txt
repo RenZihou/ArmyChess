@@ -10,6 +10,8 @@ set(CMAKE_AUTOUIC ON)
 
 set(CMAKE_PREFIX_PATH "C:/Users/alex/AppData/Roaming/Qt/6.1.2/6.1.2/mingw81_64/lib/cmake")
 
+set(CMAKE_CXX_FLAGS "-Wall")
+
 find_package(Qt6 COMPONENTS
         Core
         Gui
