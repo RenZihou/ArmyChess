@@ -381,6 +381,7 @@ void Board::countDown() {
             timer->stop();
             return;
         }
+        this->setSelected(nullptr);
         this->flipTurn();
         this->resetTimer();
         emit this->timeOut(timeout);

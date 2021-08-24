@@ -145,7 +145,7 @@ void MainWindow::connectionEstablished() {
 void MainWindow::connectionInterrupted() {
     this->setState(server == nullptr ? DISCONNECTED : LISTENING);
     socket = nullptr;
-    QMessageBox::information(this, "Connection Lost", "Connection is interrupted");
+    QMessageBox::information(this, "Connection Lost", "Connection interrupted.");
     qDebug() << "connection interrupted";
 }
 
