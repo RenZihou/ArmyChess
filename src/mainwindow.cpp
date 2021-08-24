@@ -81,13 +81,13 @@ void MainWindow::createServer() {
         server = new QTcpServer(this);
         QObject::connect(server, &QTcpServer::newConnection, this, &MainWindow::connectionEstablished);
 
-        if (server->listen(host, PORT)) this->setStatus(LISTENING);
+        if (server->listen(host, PORT)) this->setState(LISTENING);
         else qDebug() << "[LISTEN ERROR]" << server->errorString();
     }
     auto win = new createServerWindow(this, ip, state);
     win->show();
     QObject::connect(win, &createServerWindow::rejected, this, &MainWindow::stopServer);
-    QObject::connect(this, &MainWindow::statusChanged, win, &createServerWindow::setInfo);
+    QObject::connect(this, &MainWindow::stateChanged, win, &createServerWindow::setInfo);
 
     qDebug() << "server created";
 }
@@ -96,15 +96,14 @@ void MainWindow::connectServer() {
     auto win = new connectServerWindow(this);
     QObject::connect(win, &connectServerWindow::tryConnect, this, &MainWindow::tryConnect);
     QObject::connect(win, &connectServerWindow::rejected, this, &MainWindow::stopClient);
-    QObject::connect(this, &MainWindow::statusChanged, win, &connectServerWindow::setInfo);
+    QObject::connect(this, &MainWindow::stateChanged, win, &connectServerWindow::setInfo);
     win->show();
 }
 
-bool MainWindow::tryConnect(const QString &ip) {
+void MainWindow::tryConnect(const QString &ip) {
     socket = new QTcpSocket(this);
     socket->connectToHost(ip, PORT);
     QObject::connect(socket, &QTcpSocket::connected, this, &MainWindow::connectionEstablished);
-    return true;
 }
 
 void MainWindow::stopServer() {
@@ -112,14 +111,14 @@ void MainWindow::stopServer() {
     server->close();
     socket = nullptr;
     server = nullptr;
-    this->setStatus(DISCONNECTED);
+    this->setState(DISCONNECTED);
     qDebug() << "server stopped";
 }
 
 void MainWindow::stopClient() {
     if (socket != nullptr) socket->disconnectFromHost();
     socket = nullptr;
-    this->setStatus(DISCONNECTED);
+    this->setState(DISCONNECTED);
     qDebug() << "client stopped";
 }
 
@@ -132,9 +131,9 @@ void MainWindow::connectionEstablished() {
         ui->board->show();
         this->connectBoard();
         this->send(QString("seed %1").arg(seed));
-        this->setStatus(CONNECTED_SERVER);
+        this->setState(CONNECTED_SERVER);
     } else {
-        this->setStatus(CONNECTED_CLIENT);
+        this->setState(CONNECTED_CLIENT);
     }
     ui->actionStart->setEnabled(true);
     QObject::connect(socket, &QTcpSocket::readyRead, this, &MainWindow::receive);
@@ -144,8 +143,9 @@ void MainWindow::connectionEstablished() {
 }
 
 void MainWindow::connectionInterrupted() {
-    this->setStatus(server == nullptr ? DISCONNECTED : LISTENING);
+    this->setState(server == nullptr ? DISCONNECTED : LISTENING);
     socket = nullptr;
+    QMessageBox::information(this, "Connection Lost", "Connection is interrupted");
     qDebug() << "connection interrupted";
 }
 
@@ -193,7 +193,7 @@ void MainWindow::receive() {
     }
 }
 
-void MainWindow::setStatus(int new_state) {
+void MainWindow::setState(int new_state) {
     state = new_state;
     QString text;
     switch (new_state) {
@@ -214,7 +214,7 @@ void MainWindow::setStatus(int new_state) {
     ui->connectLabel->setText(QString("[%1]").arg(text));
     ui->actionCreate_Connection->setEnabled(new_state != CONNECTED_CLIENT);
     ui->actionConnect_to_Server->setEnabled(new_state == DISCONNECTED || new_state == CONNECTED_CLIENT);
-    emit statusChanged(new_state);
+    emit stateChanged(new_state);
 }
 
 void MainWindow::setTurn(const QString &text) {
