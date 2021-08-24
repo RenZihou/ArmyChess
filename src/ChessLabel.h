@@ -31,7 +31,7 @@ Q_OBJECT
 
 public:
     /**
-     * generator
+     * constructor
      * @param parent parent widget
      * @param side chess side
      * @param type chess type

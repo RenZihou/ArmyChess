@@ -18,7 +18,7 @@ Q_OBJECT
 
 public:
     /**
-     * generator
+     * constructor
      * @param parent parent widget
      * @param ip host ip address
      * @param state connection state

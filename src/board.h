@@ -22,7 +22,7 @@ Q_OBJECT
 
 public:
     /**
-     * generator of Board
+     * constructor
      * @param parent parent widget
      * @param seed map seed, if = 0, then use time as seed
      */
