@@ -12,12 +12,10 @@
 
 ### 使用 cmake
 
-需要在`CMakeLists.txt`中指定`CMAKE_PREFIX_PATH`，即由`Qt`提供的`cmake`前缀目录。这一目录通常形如`<Qt 安装路径>/<Qt 版本>/mingw81_64/lib/cmake`
-
-完成设置后，在项目根目录开启命令行，执行如下命令：
+在项目根目录开启命令行，执行如下命令：
 
 ```
-> cmake -S . -B build -G "MinGW Makefiles"
+> cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
 > cmake --build build
 ```
 
@@ -25,7 +23,7 @@
 
 ### 使用 qmake
 
-使用`qmake`无需过多设置，只需在项目根目录执行如下命令：
+与`cmake`的使用类似，在项目根目录执行如下命令：
 
 ```
 > mkdir build
@@ -57,6 +55,8 @@
 ### 信号与槽机制设计
 
 ### GUI 界面设计
+
+## 游戏截图
 
 
 

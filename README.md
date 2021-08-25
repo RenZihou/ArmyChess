@@ -11,11 +11,8 @@ This program supports both `cmake` and `qmake`.
 
 ### Using cmake
 
-You need to specify your `CMAKE_PREFIX_PATH` in `CMakeLists.txt` to the `cmake` folder provided
-by Qt. It should look like `QT_INSTALL_FOLDER/QT_VERSION/mingw81_64/lib/cmake`.
-
 ```
-> cmake -S . -B build -G "MinGW Makefiles"
+> cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
 > cmake --build build
 ```
 

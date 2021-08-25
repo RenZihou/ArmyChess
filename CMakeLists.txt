@@ -8,9 +8,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_PREFIX_PATH "C:/Users/alex/AppData/Roaming/Qt/6.1.2/6.1.2/mingw81_64/lib/cmake")
+execute_process(COMMAND where qmake OUTPUT_VARIABLE QT_INSTALL_PATH)
+string(REGEX REPLACE "\n$" "/../.." QT_INSTALL_PATH ${QT_INSTALL_PATH})
+string(REGEX REPLACE "\\\\" "/" QT_INSTALL_PATH ${QT_INSTALL_PATH})
+set(CMAKE_PREFIX_PATH "${QMAKE_PATH}/lib/cmake")
 
 set(CMAKE_CXX_FLAGS "-Wall")
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
+endif ()
 
 find_package(Qt6 COMPONENTS
         Core
@@ -39,13 +45,6 @@ if (WIN32)
     #    if (CMAKE_BUILD_TYPE MATCHES "Debug")
     #        set(DEBUG_SUFFIX "d")
     #    endif ()
-    set(QT_INSTALL_PATH "${CMAKE_PREFIX_PATH}")
-    if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
-        set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
-        if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
-            set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
-        endif ()
-    endif ()
     if (EXISTS "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -65,4 +64,4 @@ endif ()
 
 add_definitions(-DscaleRatio=1.5)
 add_definitions(-DPORT=7173)
-add_definitions(-DCHEAT)
+#add_definitions(-DCHEAT)
