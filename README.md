@@ -2,6 +2,8 @@
 
 This is my project (#1) for the summer semester (30240522-3) in Tsinghua University. Mainly focused on Qt and Internet programming.
 
+Author: [Ren Zihou](https://github.com/RenZihou)
+
 ## Build
 
 `MinGW 8.1.0` (your c++ compiler) and `Qt6` is required, and `Qt 6.1.2` is recommended 
@@ -50,3 +52,11 @@ This program supports both `cmake` and `qmake`.
 - [x] judge victory - 2021/08/22
 - [x] timeout - 2021/08/22
 - [x] pop-up window - 2021/08/22
+
+## Snapshots
+
+![Connect](./snapshot/connect.png)
+
+![Play](./snapshot/play.png)
+
+![Game Over](./snapshot/gameover.png)
