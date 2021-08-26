@@ -65,6 +65,7 @@ private:
     int total_turn = 0;  // total turns of the game
     bool turn = false;  // is player's turn
     bool frozen = false;  // only for debug: freeze game and no count-down
+    bool stop = false;  // stop game after victory judged
     QTimer *timer;  // countdown timer
     Ui::Board *ui;  // ui generated from .ui file
     QGridLayout *upper;  // layout of upper chess
