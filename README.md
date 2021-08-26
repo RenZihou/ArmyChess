@@ -55,6 +55,12 @@ This program supports both `cmake` and `qmake`.
 
 ## Change Log
 
+### v1.3.1
+
+**Fix bug**
+
+* game now correctly stop when all soldiers are killed
+
 ### v1.3.0
 
 **Add**

@@ -421,15 +421,10 @@ void Board::resetTimer() {
     emit this->timeChanged(time);
 }
 
-void Board::soldierKilled() {
-    --soldier_left;
-    if (soldier_left == 0) {
-        this->exec("lose");
-        qDebug() << "lose because all soldiers are killed";
-    }
-}
+void Board::soldierKilled() { --soldier_left; }
 
 void Board::exec(const QString &cmd_, bool send /* = true */) {
+    if (stop) return;
     std::string cmd = cmd_.toStdString();
     std::string part;
     std::vector<std::string> parts;
@@ -474,11 +469,19 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         side = 1 - side_;
         emit this->sideChanged(side);
     } else if (*it == "finish") {
+        qDebug() << "tmp finish exec";
         ++total_turn;
         if (total_turn == 20) emit this->canAdmitDefeat();
         this->flipTurn();
         this->resetTimer();
+
+        if (soldier_left == 0) {
+            this->exec("lose");
+            qDebug() << "lose because all soldiers are killed";
+        }
     } else if (*it == "win" || *it == "lose") {
+        qDebug() << "tmp win/lose exec";
+        stop = true;
         timer->stop();
         this->flipTurn(0);
     }

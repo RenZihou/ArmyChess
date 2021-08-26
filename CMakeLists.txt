@@ -64,4 +64,4 @@ endif ()
 
 add_definitions(-DscaleRatio=1.5)
 add_definitions(-DPORT=7173)
-#add_definitions(-DCHEAT)
+add_definitions(-DCHEAT)
