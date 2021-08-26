@@ -29,29 +29,75 @@ This program supports both `cmake` and `qmake`.
 
 ## Develop Progress
 
-#### Interface
+### Interface
 
 - [x] main window & menu bar - 2021/08/16
 - [x] board & chess - 2021/08/17
 - [x] board synchronization - 2021/08/19
 
-#### Connection
+### Connection
 
 - [x] connection - 2021/08/19
 - [x] disconnection - 2021/08/19
 
-#### Rules
+### Rules
 
 - [x] init board and chess - 2021/08/17
 - [x] flip chess - 2021/08/17
 - [x] move chess - 2021/08/20
 - [x] eat chess - 2021/08/20
 
-#### Victory
+### Victory
 
 - [x] judge victory - 2021/08/22
 - [x] timeout - 2021/08/22
 - [x] pop-up window - 2021/08/22
+
+## Change Log
+
+### v1.3.0
+
+**Add**
+
+* highlight opponent's move
+
+### v1.2.2
+
+**Fix bug**
+
+* chess won't move slightly when selected now
+
+### v1.2.1
+
+**Add**
+
+* new cheat command `freeze` will pause the game
+
+### v1.2.0
+
+**Fix bug**
+
+* cancel listening before connection would crash the game
+
+**Code Implement**
+
+* add debug output: connection failed
+
+### v1.1
+
+**Optimization**
+
+* ip check
+* timeout counts
+* game tips
+
+**Fix bug**
+
+* game now stop correctly after a victory
+
+### v1.0
+
+First full game
 
 ## Snapshots
 
