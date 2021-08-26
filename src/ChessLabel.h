@@ -72,8 +72,9 @@ public:
     /**
      * highlight a chess
      * @param h set chess as highlighted or not
+     * @param color highlight frame color
      */
-    void highlight(bool h = true);
+    void highlight(bool h = true, const QString& color = "red");
 
     /**
      * chess is on upper board or not (on lower board)

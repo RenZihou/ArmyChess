@@ -71,6 +71,7 @@ private:
     QGridLayout *lower;  // layout of lower chess
     std::vector<ChessLabel *> chess;  // all chess
     ChessLabel *selected = nullptr;  // selected chess
+    ChessLabel *opponent_selected = nullptr;  // opponent selected chess (to highlight)
 
     /**
      * get the chess with given coordinate

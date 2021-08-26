@@ -43,8 +43,8 @@ void ChessLabel::kill() {
     this->updateImage();
 }
 
-void ChessLabel::highlight(bool h /* = true */) {
-    h ? this->setStyleSheet("border: 2px solid red;")
+void ChessLabel::highlight(bool h /* = true */, const QString& color /* = red */) {
+    h ? this->setStyleSheet(QString("border: 2px solid %1;").arg(color))
       : this->setStyleSheet("");
     this->setAlignment(Qt::AlignCenter);
 }

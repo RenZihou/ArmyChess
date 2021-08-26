@@ -145,14 +145,19 @@ void Board::drawBoard() {
 }
 
 void Board::chessClicked(ChessLabel *chess_) {
-    qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd()
-             << chess_->getType() << chess_->getSide();
+    qDebug() << "chess clicked" << chess_->getXInd() << chess_->getYInd();
     if (!turn) return;  // not player's turn
+    if (opponent_selected != nullptr) {  // cancel highlight display of opponent's move
+        opponent_selected->highlight(false);
+        opponent_selected = nullptr;
+    }
     if (!chess_->isRevealed()) {
         chess_->reveal();
         this->setSelected(nullptr);
         emit this->stepProceeded(
                 QString("reveal %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
+        emit this->stepProceeded(
+                QString("highlight %1 %2").arg(chess_->getXInd()).arg(chess_->getYInd()));
         this->chessRevealed(chess_->getSide());
         if (!frozen) this->exec("finish");
         return;
@@ -170,6 +175,9 @@ void Board::chessClicked(ChessLabel *chess_) {
                                                  .arg(selected->getYInd())
                                                  .arg(chess_->getXInd())
                                                  .arg(chess_->getYInd()));
+                emit this->stepProceeded(QString("highlight %1 %2")
+                                                 .arg(chess_->getXInd())
+                                                 .arg(chess_->getYInd()));
                 if (!frozen) this->exec("finish");
             }
             this->setSelected(nullptr);
@@ -183,6 +191,9 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
+                        emit this->stepProceeded(QString("highlight %1 %2")
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
                         if (!frozen) this->exec("finish");
                         break;
                     case 0:  // die together
@@ -194,6 +205,9 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("kill %1 %2")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd()));
+                        emit this->stepProceeded(QString("highlight %1 %2")
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
                         if (!frozen) this->exec("finish");
                         break;
                     case 1:  // kill opponent
@@ -205,6 +219,9 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("move %1 %2 %3 %4")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd())
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
+                        emit this->stepProceeded(QString("highlight %1 %2")
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
                         if (!frozen) this->exec("finish");
@@ -219,6 +236,9 @@ void Board::chessClicked(ChessLabel *chess_) {
                         emit this->stepProceeded(QString("move %1 %2 %3 %4")
                                                          .arg(selected->getXInd())
                                                          .arg(selected->getYInd())
+                                                         .arg(chess_->getXInd())
+                                                         .arg(chess_->getYInd()));
+                        emit this->stepProceeded(QString("highlight %1 %2")
                                                          .arg(chess_->getXInd())
                                                          .arg(chess_->getYInd()));
                         emit this->stepProceeded("win");
@@ -365,8 +385,14 @@ void Board::connectChess(ChessLabel *c) const {
 }
 
 void Board::setSelected(ChessLabel *s) {
-    if (selected != nullptr) selected->highlight(false);
-    if (s != nullptr) s->highlight();
+    if (selected != nullptr) {
+        selected->highlight(false);
+    }
+    if (s != nullptr) {
+        s->highlight();
+        emit this->stepProceeded(
+                QString("highlight %1 %2").arg(s->getXInd()).arg(s->getYInd()));
+    }
     selected = s;
 }
 
@@ -429,6 +455,13 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         auto c0 = this->getChess(x0, y0);
         auto c1 = this->getChess(x1, y1);
         if (c0 != nullptr && c1 != nullptr) c0->moveToEmpty(c1);
+    } else if (*it == "highlight") {
+        int x = stoi(*(++it));
+        int y = stoi(*(++it));
+        auto c = this->getChess(x, y);
+        if (opponent_selected != nullptr) opponent_selected->highlight(false);
+        opponent_selected = c;
+        opponent_selected->highlight(true, "orange");
     } else if (*it == "freeze") {
         if (frozen) {
             timer->start(1000);
