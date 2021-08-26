@@ -323,8 +323,13 @@ bool Board::reachable(ChessLabel *current, ChessLabel *target, bool can_turn) co
             int inc_size = 0;
             for (int h = static_cast<int>(highway.size()) - 1; h >= prev_size; --h) {
                 for (int direction = 0; direction < 4; ++direction) {
-                    auto c = this->getChess(highway[h]->getXInd() + !(direction & 1) * (1 - direction),
-                                            highway[h]->getYInd() + (direction & 1) * (direction - 2));
+                    int x = highway[h]->getXInd();
+                    int y = highway[h]->getYInd();
+                    int x_ = x + !(direction & 1) * (1 - direction);
+                    int y_ = y + (direction & 1) * (direction - 2);
+                    if (x == 1 && x_ == 1) continue;
+                    if (x == 3 && x_ == 3) continue;
+                    auto c = this->getChess(x_, y_);
                     if (c == nullptr) continue;
                     qDebug() << "check" << c->getXInd() << c->getYInd();
                     if (c->onHighway() &&
@@ -468,7 +473,6 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
         side = 1 - side_;
         emit this->sideChanged(side);
     } else if (*it == "finish") {
-        qDebug() << "tmp finish exec";
         ++total_turn;
         if (total_turn == 20) emit this->canAdmitDefeat();
         this->flipTurn();
@@ -479,7 +483,6 @@ void Board::exec(const QString &cmd_, bool send /* = true */) {
             qDebug() << "lose because all soldiers are killed";
         }
     } else if (*it == "win" || *it == "lose") {
-        qDebug() << "tmp win/lose exec";
         stop = true;
         timer->stop();
         this->flipTurn(0);

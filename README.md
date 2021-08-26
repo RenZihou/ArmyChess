@@ -55,6 +55,12 @@ This program supports both `cmake` and `qmake`.
 
 ## Change Log
 
+### v1.3.2
+
+**Fix bug**
+
+* Soldier cannot move across border now
+
 ### v1.3.1
 
 **Fix bug**
